@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Главная - Мой сайт{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Добро пожаловать</h1>
+    <button id="games-list-btn" type="button">Список игр</button>
+</div>
+
+<script>
+    document.getElementById('games-list-btn').addEventListener('click', function() {
+        window.location.href = '/pages/games';
+    });
+</script>
+{% endblock %}

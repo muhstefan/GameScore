@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="{{ url_for('static', path='favicon.ico') }}">
+    <title>{% block title %}Заголовок страницы{% endblock %}</title>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <header>
+<link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
+        {% block header %}
+        <header class="navigation">
+            <div class="container">
+                <a href="/" class="logo">GameScore</a>
+                <nav class="nav-links">
+                    <a href="/games">Список игр</a>
+                    <a href="/about">Вход</a>
+                    <a href="/contact">Регистрация</a>
+                </nav>
+            </div>
+        </header>
+        {% endblock %}
+    </header>
+
+    <main>
+        {% block content %}
+        <!-- Основное содержимое страницы -->
+        {% endblock %}
+    </main>
+
+    <footer>
+        {% block footer %}
+        © 2025 GameScore
+        {% endblock %}
+    </footer>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>

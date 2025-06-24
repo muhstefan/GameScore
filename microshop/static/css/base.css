@@ -1,0 +1,171 @@
+
+/* БАЗОВАЯ РАЗМЕТКА */
+html, body {
+  color: #555; /* средний серый цвет */
+  font-family: 'Rubik', sans-serif;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1;
+  flex-shrink: 0;
+  flex-basis: auto;
+}
+
+footer {
+  flex-shrink: 0;
+  margin-top: auto;
+  padding: 1rem;
+  color: #555;
+}
+
+/* Мейн контейнер */
+/* Контейнер с отступами и центровкой */
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2.5em 9em;          /* увеличили padding в 2 раза */
+  margin: 4em auto;            /* увеличили отступы сверху/снизу в 2 раза */
+  width: fit-content;
+  max-width: 180vw;            /* увеличили max-width в 2 раза (теоретически, но 180vw — больше ширины экрана) */
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 24px;         /* увеличили скругление в 2 раза */
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.12); /* увеличили тень в 2 раза */
+  border: 2px solid #d0d0d0;  /* увеличили толщину обводки в 2 раза */
+  backdrop-filter: blur(20px); /* увеличили размытие в 2 раза */
+  color: #555;
+  box-sizing: border-box;
+}
+
+/* Элементы */
+/* Кнопки — скруглённые с плавным эффектом при наведении */
+button {
+  background: linear-gradient(135deg, #547bb8, #2e5a8a);
+  border: none;
+  border-radius: 12px;
+  color: white;
+  padding: 0.7rem 1.5rem;
+  font-weight: 400;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+  user-select: none;
+  box-shadow: 0 4px 8px rgba(108, 160, 220, 0.4); /* мягкая тень в цвете */
+}
+
+/* наведение мышкой и клавиатурой */
+button:hover{
+  background: linear-gradient(135deg, #6ca0dc, #3f7abf); /* чуть темнее при наведении */
+  box-shadow: 0 6px 12px rgba(63, 122, 191, 0.6);
+  outline: none;
+}
+
+/* Инпуты — минималистичные с лёгкой тенью */
+input, select, textarea {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+  width: 100%;
+  max-width: 100%;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #0078d4;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,120,212,0.5);
+}
+
+/* Заголовки — чёткие, с хорошим межстрочным интервалом */
+h1, h2, h3, h4, h5 {
+  font-weight: 400;
+  color: #555;
+}
+
+/* Параграфы с комфортным чтением */
+p {
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* Ссылки с акцентом и без подчеркивания */
+a {
+  color: #0078d4;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover,
+a:focus {
+  color: #005a9e;
+  outline: none;
+  text-decoration: underline;
+}
+
+/* НАВИГАЦИОННАЯ ПАНЕЛЬ */
+/* Основной контейнер панели навигации */
+.navigation {
+  background-color: #0078d4; /* Синий фон */
+  color: white;              /* Белый цвет текста */
+  box-shadow: 0 2px 8px rgba(0, 120, 212, 0.3); /* Тень под панелью */
+}
+
+.navigation .container {
+  padding: 0.7em;          /* увеличили padding в 2 раза */
+  width: 90%; /* фиксированная или адаптивная ширина */
+  margin: 0 auto;
+  background: none;
+  box-shadow: none;
+  border: none;
+  display: flex;               /* включаем flexbox */
+  flex-direction: row;         /* располагаем элементы в строку */
+  justify-content: space-between; /* прижимаем крайние элементы к краям */
+  align-items: center;         /* вертикальное выравнивание по центру */
+}
+
+/* Логотип сайта */
+.navigation .logo {
+
+  font-weight: 400;        /* Жирный шрифт */
+  font-size: 1.25rem;     /* Размер шрифта */
+  color: white;           /* Белый цвет */
+  text-decoration: none;  /* Убираем подчеркивание */
+}
+
+/* Ссылки навигации */
+.navigation .nav-links a {
+  color: white;                /* Белый цвет */
+  text-decoration: none;       /* Без подчеркивания */
+  margin-left: 1.5rem;         /* Отступ слева между ссылками */
+  transition: color 0.3s ease; /* Плавный переход цвета при наведении */
+}
+
+/* Состояния при наведении мышью и фокусе */
+.navigation .nav-links a:hover,
+.navigation .nav-links a:focus {
+  color: #cce4f7;  /* Светло-голубой цвет */
+  outline: none;   /* Убираем стандартный контур */
+}
+
+.game-container {
+  display: flex;
+  gap: 1rem; /* отступ между элементами */
+  flex-direction: row; /* элементы в ряд по горизонтали */
+  padding: 0.2em 3em; /* правильно: точка, а не запятая */
+  height: 40px; /* фиксированная высота */
+  max-width: 80vw;
+  background: rgba(240, 240, 240, 0.9);
+  border-radius: 16px;
+  align-items: center; /* выравнивание элементов по вертикали */
+}
