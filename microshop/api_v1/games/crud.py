@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession # это сессия для р�
 from microshop.core.models import Game
 from sqlalchemy.engine import Result
 from sqlalchemy import select
-from .schemas import GameCreate,GameUpdate,GameUpdatePartical
+from microshop.core.models.game import GameCreate,GameUpdate
 
 
 async def get_games(session : AsyncSession) -> list[Game]:
@@ -23,7 +23,7 @@ async def create_game(session: AsyncSession, game_in: GameCreate):
 
 async def update_game(session: AsyncSession,  #может полностью и частично обновлять объект
                          game: Game,
-                         game_update: GameUpdate | GameUpdatePartical,
+                         game_update: GameUpdate | GameUpdate,
                          partical : bool = False
                          )->Game:
     for name, value in game_update.model_dump(exclude_unset=partical).items():

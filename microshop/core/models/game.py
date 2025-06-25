@@ -1,15 +1,27 @@
-""" SQLAlchemy Это модель базы данных.
-Определяет структуру таблицы в базе данных.
-Используется для работы с ORM (Object-Relational Mapping) —
-то есть для создания, чтения, обновления и удаления записей в базе.
-"""
+from typing import Optional
+from sqlmodel import SQLModel, Field
+from pydantic import ConfigDict
+
+class GameBase(SQLModel):
+    name: str
+    description: str
+    rating: int
 
 
-from sqlalchemy.orm import Mapped
-from .base import Base
+class Game(GameBase, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
 
 
-class Game(Base):
-    name: Mapped[str]
-    description: Mapped[str]
-    rating: Mapped[int]
+class GameCreate(GameBase):
+    pass
+
+
+class GameUpdate(SQLModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    rating: Optional[int] = None
+
+
+class GameRead(GameBase):
+    id: int
+    model_config = ConfigDict(from_attributes=True)

@@ -3,7 +3,7 @@ from items_views import router as items_router
 from microshop.core.models import db_helper
 from templates import templates
 from fastapi import FastAPI, Request
-from core.models.base import Base
+from sqlmodel import SQLModel
 from api_v1 import router as router_v1
 from pages import router as pages_router
 from core.config import settings
@@ -13,7 +13,7 @@ import uvicorn
 @asynccontextmanager          # контекстный менеджер в котором можно создать БД и что-то сделать после завершения
 async def lifespan(app: FastAPI):
     async  with db_helper.engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
+        await conn.run_sync(SQLModel.metadata.create_all)
     yield
 
 

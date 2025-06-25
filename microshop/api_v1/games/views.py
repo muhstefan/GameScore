@@ -1,9 +1,6 @@
 from fastapi import APIRouter, HTTPException,status, Depends
-from microshop.api_v1.games.schemas import GameUpdate, GameUpdatePartical
-from requests import session
-
+from microshop.core.models.game import GameUpdate,Game , GameCreate
 from . import crud
-from .schemas import Game , GameCreate
 from microshop.core.models import db_helper
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id
@@ -40,7 +37,7 @@ async def update_game(
 
 @router.patch("/{game_id}/")
 async def update_game_particle(
-        game_update: GameUpdatePartical,
+        game_update: GameUpdate,
         game : Game = Depends(game_by_id),
         session : AsyncSession = Depends(db_helper.scoped_session_dependency)
 ):
