@@ -1,4 +1,6 @@
 const containers = document.querySelectorAll('.game-container');
+const modal = document.getElementById('myModal');
+const add_game_btn = document.getElementById('add_game');
 import { BASE_URL } from './config.js';
 
 
@@ -26,3 +28,18 @@ fetch(`${BASE_URL}/api/v1/games/${id}/`, {
   method: 'DELETE'
 })
 }
+
+// Работа с модальным окном.
+
+add_game_btn.onclick = openModal;
+modal.onclick = closeModal;
+function openModal() {
+  modal.style.display = 'block';
+}
+
+function closeModal(event) {
+  if (event.target === modal) {
+    modal.style.display = 'none';
+  }
+};
+

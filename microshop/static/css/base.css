@@ -35,7 +35,7 @@ footer {
   flex-direction: column;
   align-items: center;
   padding: 2.5em 9em;          /* увеличили padding в 2 раза */
-  margin: 4em auto;            /* увеличили отступы сверху/снизу в 2 раза */
+  margin: 1em auto;            /* увеличили отступы сверху/снизу в 2 раза */
   width: fit-content;
   max-width: 180vw;            /* увеличили max-width в 2 раза (теоретически, но 180vw — больше ширины экрана) */
   background: rgba(255, 255, 255, 0.8);
@@ -60,7 +60,7 @@ button {
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
   user-select: none;
-  box-shadow: 0 4px 8px rgba(108, 160, 220, 0.4); /* мягкая тень в цвете */
+  box-shadow: 0 4px 8px rgba(108, 160, 220, 0.4);
 }
 
 /* наведение мышкой и клавиатурой */
@@ -71,27 +71,52 @@ button:hover{
 }
 
 /* Инпуты — минималистичные с лёгкой тенью */
-input, select, textarea {
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
-  width: 100%;
-  max-width: 100%;
+.form-group {
+  display: flex;
+  align-items: center;       /* Вертикальное выравнивание по центру */
+  margin-bottom: 1rem;
 }
 
-input:focus, select:focus, textarea:focus {
+.form-group label {
+  width: 120px;              /* Фиксированная ширина для лейбла */
+  margin-right: 10px;        /* Отступ справа от лейбла */
+  font-weight: 600;
+  color: #333;
+  text-align: right;         /* Текст лейбла выравнен по правому краю */
+}
+
+.form-group input,
+.form-group textarea {
+  flex: 1;                   /* Занимают оставшееся пространство */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
   border-color: #0078d4;
   outline: none;
   box-shadow: 0 0 5px rgba(0,120,212,0.5);
 }
 
+
 /* Заголовки — чёткие, с хорошим межстрочным интервалом */
-h1, h2, h3, h4, h5 {
+h3, h4, h5 {
   font-weight: 400;
   color: #555;
 }
+
+h1, h2 {
+  font-weight: 400;
+  color: #555;
+  text-align: center; /* добавлено */
+}
+
+
 
 /* Параграфы с комфортным чтением */
 p {
@@ -168,4 +193,69 @@ a:focus {
   background: rgba(240, 240, 240, 0.9);
   border-radius: 16px;
   align-items: center; /* выравнивание элементов по вертикали */
+}
+
+.addition-container {
+  display: flex;
+  flex-direction: row;          /* элементы в строку */
+  justify-content: space-between; /* элементы прижаты к краям контейнера */
+  align-items: center;          /* вертикальное выравнивание по центру */
+  width: 30%;                   /* ширина контейнера (можно менять) */
+  max-width: 600px;             /* максимальная ширина */
+  margin: 40px auto 0 auto;
+
+}
+
+
+/* МОДАЛЬНОЕ ОКНО */
+
+.modal {
+  display: none; /* скрыто по умолчанию */
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background-color: rgba(0,0,0,0.5); /* затемнённый фон */
+}
+
+.modal-content {
+  background-color: #fff;
+  margin: 10% auto;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 500px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.25);
+}
+
+
+.form-group {
+  display: flex;
+  align-items: center;       /* Вертикальное выравнивание по центру */
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  width: 120px;              /* Фиксированная ширина для лейбла */
+  margin-right: 10px;        /* Отступ справа от лейбла */
+  font-weight: 600;
+  color: #333;
+  text-align: right;         /* Текст лейбла выравнен по правому краю */
+}
+
+.form-group input,
+.form-group textarea {
+  flex: 1;                   /* Занимают оставшееся пространство */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  border-color: #0078d4;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0,120,212,0.5);
 }
