@@ -4,6 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from microshop.core.models import db_helper, Game
 from . import crud
 
+
+# Path (берем ее из пути URL)
 async def game_by_id(game_id: Annotated[int,Path],
                           session: AsyncSession = Depends(db_helper.scoped_session_dependency))\
         -> Game:

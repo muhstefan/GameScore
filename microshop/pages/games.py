@@ -1,13 +1,11 @@
-from fastapi import APIRouter, Request, Depends
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.ext.asyncio import AsyncSession
 from microshop.api_v1.games import crud
 from microshop.core.models import db_helper
+from fastapi import APIRouter, Request, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
-
+from microshop.templates import templates
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")  # путь к шаблонам
 
 @router.get("/games")
 async def products_page(request: Request, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):

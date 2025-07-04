@@ -1,8 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from microshop.core.models import Game
+from microshop.core.models.game import GameCreate,GameUpdate
+from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
 from sqlalchemy import select
-from microshop.core.models.game import GameCreate,GameUpdate
+
 
 
 async def get_games(session : AsyncSession) -> list[Game]:
@@ -22,18 +23,20 @@ async def create_game(session: AsyncSession, game_in: GameCreate):
     return game
 
 async def update_game(session: AsyncSession,  #может полностью и частично обновлять объект
-                         game: Game,
-                         game_update: GameUpdate | GameUpdate,
-                         partical : bool = False
+                         game_id: int,  # объект игры, которую нужно обновить
+                         game_update: GameUpdate, # данные обновления игры
+                         partial : bool = False
                          )->Game:
-    for name, value in game_update.model_dump(exclude_unset=partical).items():
-        setattr(game,name,value)
+    game = await get_game(session, game_id)
+    for name_field, value in game_update.model_dump(exclude_unset=partial).items(): # метод Pydantic-модели, который возвращает словарь с данными из game_update.
+        setattr(game,name_field,value)
     await session.commit()
     return game
 
 async def delete_game(session: AsyncSession,
-                         game: Game,
+                         game_id: int,
 
 )-> None:
+    game = await get_game(session, game_id)
     await session.delete(game)
     await session.commit()

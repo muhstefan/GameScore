@@ -17,7 +17,7 @@ class GameCreate(GameBase):
 
 
 class GameUpdate(SQLModel):
-    name: Optional[str] = None
+    name: Optional[str] = None  #Значения по умолчанию None - обнулит поле например при полном обновлении
     description: Optional[str] = None
     rating: Optional[int] = None
 

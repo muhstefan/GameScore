@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker,async_scoped_session, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker,async_scoped_session
 from asyncio import current_task
 from microshop.core.config import settings
 

@@ -1,12 +1,14 @@
-from contextlib import asynccontextmanager
-from items_views import router as items_router
 from microshop.core.models import db_helper
-from templates import templates
+from microshop.templates import templates
+from microshop.core.config import settings
+from microshop.api_v1 import router as router_v1
+from microshop.pages import router as pages_router
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from sqlmodel import SQLModel
-from api_v1 import router as router_v1
-from pages import router as pages_router
-from core.config import settings
+from pathlib import Path
+
+
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
@@ -17,11 +19,13 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)  # передаем функцию но не вызываем ее, этим займется фреймворк.
-app.include_router(items_router)
+app = FastAPI(lifespan=lifespan)  # передаем функцию, но не вызываем ее, этим займется фреймворк.
 app.include_router(router_v1,prefix=settings.api_v1_prefix)
 app.include_router(pages_router)
-app.mount("/static", StaticFiles(directory="static"), name="static")
+
+BASE_DIR = Path(__file__).parent  # папка microshop
+STATIC_DIR = BASE_DIR / "static"
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 
 @app.get("/")
@@ -31,11 +35,6 @@ async def index_page(request: Request):
         name="index.html",
         request=request
     )
-
-
-
-
-
 
 if __name__ == '__main__':
     uvicorn.run("main:app", reload=True)
