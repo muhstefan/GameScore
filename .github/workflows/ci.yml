@@ -1,0 +1,19 @@
+name: CI with Docker
+
+on: [push, pull_request]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Скачать наш код в виртуальную машину
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build Docker image
+      run: docker build -t myapp:test .
+
+    # Гоняем наш контейнер и очищаем его
+    - name: Run tests inside Docker container
+      run: docker run --rm myapp:test pytest -v --asyncio-mode=auto
