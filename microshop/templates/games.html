@@ -17,20 +17,8 @@
     <button id="add_game" type="button">добавить игру</button>
 </div>
 
-<div class="container" id="game_list_container">
-
-    <h1>СПИСОК ИГР</h1>
-
-    {% for game in games %}
-    <div class="game-container" id="container_{{ game.id }}">
-        <h3>{{ game.name }} - {{ game.rating }}</h3>
-         <button id="edit_game_{{ game.id }}" type="button">редактировать</button>
-         <button id="delete_game_{{ game.id }}" type="button">удалить</button>
-
-    </div>
-    {% else %}
-    <p>Игры не найдены</p>
-    {% endfor %}
+<div id="games_list_container">
+  {% include 'games_list_container.html' %}
 </div>
 
 <!--Модальное окно(по умолчанию скрыто)-->
@@ -40,21 +28,21 @@
 
     <form id="gameForm">
       <div class="form-group">
-        <label for="title">Название</label>
-        <input type="text" id="title" name="title" placeholder="Введите название" required>
+        <label for="title_input">Название</label>
+        <input type="text" id="title_input" name="title" placeholder="Введите название" required>
       </div>
 
       <div class="form-group">
-        <label for="description">Описание</label>
-        <textarea id="description" name="description" placeholder="Введите описание" rows="3" required></textarea>
+        <label for="description_input">Описание</label>
+        <textarea id="description_input" name="description" placeholder="Введите описание" rows="3" required></textarea>
       </div>
 
       <div class="form-group">
-        <label for="rating">Оценка</label>
-        <input type="number" id="rating" name="rating" min="0" max="10" step="0.1" placeholder="0 - 10" required>
+        <label for="rating_input">Оценка</label>
+        <input type="number" id="rating_input" name="rating" min="0" max="10" step="0.1" placeholder="0 - 10" required>
       </div>
 
-      <button type="submit">Сохранить</button>
+      <button type="submit" id="save_game">Сохранить</button>
     </form>
   </div>
 </div>

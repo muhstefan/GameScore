@@ -12,3 +12,10 @@ async def products_page(request: Request, session: AsyncSession = Depends(db_hel
     games = await crud.get_games(session)
     games_dicts = jsonable_encoder(games)  # Преобразуем модели в JSON-совместимые словари
     return templates.TemplateResponse("games.html", {"request": request, "games": games_dicts})
+
+@router.get("/games/list")
+async def games_list_container(request: Request, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+    games = await crud.get_games(session)
+    games_dicts = jsonable_encoder(games)
+    # Возвращаем только часть шаблона, отвечающую за список игр
+    return templates.TemplateResponse("games_list_container.html", {"request": request, "games": games_dicts})

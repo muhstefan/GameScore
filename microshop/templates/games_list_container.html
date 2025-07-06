@@ -1,0 +1,15 @@
+<div class="container" id="game_list_container">
+
+    <h1>СПИСОК ИГР</h1>
+
+    {% for game in games %}
+    <div class="game-container" id="container_{{ game.id }}">
+        <h3>{{ game.name }} - {{ game.rating }}</h3>
+        <button data-action="edit" data-id="{{ game.id }}" type="button">редактировать</button>
+        <button data-action="delete" data-id="{{ game.id }}" type="button">удалить</button>
+
+    </div>
+    {% else %}
+    <p>Игры не найдены</p>
+    {% endfor %}
+</div>

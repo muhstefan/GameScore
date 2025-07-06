@@ -9,7 +9,6 @@ async def test_create_game(async_client):
     created_game = response.json()
     assert created_game["name"] == game_data["name"]
     print("Тест 1 Создание игры - ок")
-    print("Test WORKFLOW")
 
 @pytest.mark.asyncio
 async def test_change_game_put(async_client,create_some_games):
