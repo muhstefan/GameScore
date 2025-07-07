@@ -1,5 +1,5 @@
 from microshop.core.models import Game
-from microshop.core.models.game import GameCreate,GameUpdate
+from microshop.core.models.games import GameCreate,GameUpdate
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
 from sqlalchemy import select

@@ -1,8 +1,10 @@
 from typing import Optional
-from sqlmodel import SQLModel, Field
+from sqlmodel import Field
 from pydantic import ConfigDict
+from microshop.core.models.base import BaseModel
 
-class GameBase(SQLModel):
+
+class GameBase(BaseModel):
     name: str
     description: str
     rating: int
@@ -16,7 +18,7 @@ class GameCreate(GameBase):
     pass
 
 
-class GameUpdate(SQLModel):
+class GameUpdate(BaseModel):
     name: Optional[str] = None  #Значения по умолчанию None - обнулит поле например при полном обновлении
     description: Optional[str] = None
     rating: Optional[int] = None

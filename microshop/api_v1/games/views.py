@@ -1,7 +1,6 @@
 from fastapi import APIRouter, HTTPException,status, Depends
-from microshop.core.models.game import GameUpdate,Game , GameCreate
+from microshop.core.models.games import GameUpdate,Game , GameCreate
 from . import crud
-from microshop.core.models import db_helper
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id
 from microshop.core.db import get_db
