@@ -21,9 +21,10 @@ async def create_user(session: AsyncSession, user_data: UserCreateDB):
 
 async def update_user(
         session: AsyncSession,
-        user: User,
+        user_id: int,
         update_data: dict
 ) -> User:
+    user = await get_user(session, user_id)
     for name, value in update_data.items():
         setattr(user, name, value)
     await session.commit()
@@ -32,8 +33,8 @@ async def update_user(
 
 
 async def delete_user(session: AsyncSession,
-                      user_int: int
+                      user_id: int
                       ) -> None:
-    user = await get_user(session, user_int)
+    user = await get_user(session, user_id)
     await session.delete(user)
     await session.commit()
