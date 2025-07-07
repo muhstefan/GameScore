@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession # это сессия для р�
 from microshop.core.models import User
 from sqlalchemy.engine import Result
 from sqlalchemy import select
-from microshop.core.models.users import UserUpdate, UserCreateDB
+from microshop.core.models.users import UserCreateDB
 
 async def get_users(session : AsyncSession) -> list[User]:
     stmt = select(User).order_by(User.id)

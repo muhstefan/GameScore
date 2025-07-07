@@ -32,7 +32,7 @@ async def user_by_id(
 async def prepare_user_create(user_in: UserCreate) -> UserCreateDB:
     hashed_password = hash_password(user_in.password)
     return UserCreateDB(
-        login=user_in.login,
+        username=user_in.username,
         email=user_in.email,
         password_hash=hashed_password
     )
@@ -44,10 +44,10 @@ async def prepare_user_update(
 ) -> dict:
     update_data = user_update.model_dump(exclude_unset=True)
 
-    # Проверка уникальности login
-    if "login" in update_data:
+    # Проверка уникальности username
+    if "username" in update_data:
         existing_user = await session.execute(
-            select(User).where(User.login == update_data["login"], User.id != user_id)
+            select(User).where(User.username == update_data["username"], User.id != user_id)
         )
         if existing_user.scalars().first():
             raise HTTPException(
