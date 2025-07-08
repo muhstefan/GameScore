@@ -22,6 +22,8 @@ httpx = "^0.28.1"
 faker = "^37.4.0"
 passlib = "^1.7.4"
 bcrypt = "^4.3.0"
+python-jose = {extras = ["cryptography"], version = "^3.5.0"}
+python-multipart = "^0.0.20"
 
 
 
