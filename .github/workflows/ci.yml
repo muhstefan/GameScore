@@ -2,6 +2,9 @@ name: CI with Docker
 
 on: [push, pull_request]
 
+env:
+  SECRET_KEY: ${{ secrets.SECRET_KEY }} 
+
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
