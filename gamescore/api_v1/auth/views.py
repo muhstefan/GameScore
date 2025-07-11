@@ -4,10 +4,9 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi import Response
 from gamescore.api_v1.auth.security import *
 from gamescore.api_v1.auth.config import Production
+from gamescore.core.db import get_db
 
 router = APIRouter(tags=["Auth"])
-
-# TODO: Сделать рефреш токен, нормально его использовать , и сохранение в куки. чтение из куки
 
 def set_auth_cookies(response: Response, access_token: str, refresh_token: str, secure: bool):
     response.set_cookie(
@@ -28,8 +27,8 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str, 
     )
 
 
-@router.post("/login")
-async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+@router.post("/login/")
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), session : AsyncSession = Depends(get_db)):
     user = await get_user_by_username(session, form_data.username)
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect username or password")
@@ -42,8 +41,8 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     return {"message": "Logged in successfully"}
 
 
-@router.post("/refresh")
-async def refresh_token(response: Response, session: AsyncSession = Depends(db_helper.scoped_session_dependency), refresh_token: str | None = Cookie(default=None)):
+@router.post("/refresh/")
+async def refresh_token(response: Response, session : AsyncSession = Depends(get_db), refresh_token: str | None = Cookie(default=None)):
     if refresh_token is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
 
@@ -67,7 +66,7 @@ async def refresh_token(response: Response, session: AsyncSession = Depends(db_h
     return {"message": "Access and refresh tokens refreshed"}
 
 
-@router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
+@router.post("/logout/", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(response: Response):
     response.delete_cookie(key="access_token", httponly=True, samesite="lax", secure=Production)
     response.delete_cookie(key="refresh_token", httponly=True, samesite="lax", secure=Production)
