@@ -36,7 +36,7 @@ async def prepare_test_db_per_function():
 
 
 @pytest_asyncio.fixture
-async def create_some_games(async_client):
+async def create_some_games(async_client, login_admin):
     print("Заполняем играми")
     games = []
     for _ in range(5):
