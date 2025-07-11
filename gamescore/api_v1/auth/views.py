@@ -1,9 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from fastapi import Response, Cookie
-from gamescore.core.models import db_helper
-from gamescore.api_v1.auth.crud import get_user_by_username # security — модуль с функциями для проверки пароля, генерации токенов
 from gamescore.api_v1.auth.security import *
 from gamescore.api_v1.auth.config import Production
 
@@ -64,7 +62,7 @@ async def refresh_token(response: Response, session: AsyncSession = Depends(db_h
     new_access_token = create_access_token(data={"sub": username})
     new_refresh_token = create_refresh_token(data={"sub": username})
 
-    set_auth_cookies(response, access_token, refresh_token, secure=Production)
+    set_auth_cookies(response, new_access_token, new_refresh_token, secure=Production)
 
     return {"message": "Access and refresh tokens refreshed"}
 
