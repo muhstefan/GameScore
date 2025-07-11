@@ -4,18 +4,22 @@ from . import crud
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id
 from microshop.core.db import get_db
+from microshop.api_v1.auth import get_current_user
 
 router = APIRouter(tags=["Games"])
 
 
 
 @router.get("/",response_model=list[Game])
-async def get_games(session : AsyncSession = Depends(get_db)):
+async def get_games(session : AsyncSession = Depends(get_db),
+                    current_user=Depends(get_current_user)):
     return await crud.get_games(session=session)
 
 @router.post("/", response_model=Game,status_code=status.HTTP_201_CREATED)
 async def create_game(game_in: GameCreate,
-                         session : AsyncSession = Depends(get_db)):
+                      session : AsyncSession = Depends(get_db),
+                      current_user=Depends(get_current_user)
+                      ):
     return await crud.create_game(session=session,game_in=game_in)
 
 @router.get("/{game_id}/", response_model=Game)
