@@ -1,6 +1,7 @@
 import pytest
 from utils import create_random_game, create_partial_game
 
+
 @pytest.mark.asyncio
 async def test_create_game(async_client):
     game_data = await create_random_game()
@@ -43,5 +44,11 @@ async def test_get_games(async_client, create_some_games):
     print("Тест 5 GET ALL")
     print(games)
 
+@pytest.mark.asyncio
+async def test_create_admin(async_client, login_admin):
+    print(async_client.cookies)
+    response = await async_client.get("/api/v1/admin/admin-only/")
+    assert response.status_code == 200
+    print("Тест 6 Создание Админа")
 
 
