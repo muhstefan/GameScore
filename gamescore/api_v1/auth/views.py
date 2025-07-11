@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
 
-from fastapi import Response, Cookie
+from fastapi import Response
 from gamescore.api_v1.auth.security import *
 from gamescore.api_v1.auth.config import Production
 
@@ -37,7 +37,7 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
     access_token = create_access_token(data={"sub": user.username})
     refresh_token = create_refresh_token(data={"sub": user.username})
 
-    set_auth_cookies(response, access_token, refresh_token, secure=Prodaction)
+    set_auth_cookies(response, access_token, refresh_token, secure=Production)
 
     return {"message": "Logged in successfully"}
 
