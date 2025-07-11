@@ -1,5 +1,5 @@
-from microshop.core.config import BASE_DIR, Settings
-from microshop.core.models import DataBaseHelper
+from gamescore.core.config import BASE_DIR, Settings
+from gamescore.core.models import DataBaseHelper
 
 
 

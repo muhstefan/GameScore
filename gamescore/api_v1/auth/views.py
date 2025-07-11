@@ -2,10 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Response, Cookie
-from microshop.core.models import db_helper
-from microshop.api_v1.auth.crud import get_user_by_username # security — модуль с функциями для проверки пароля, генерации токенов
-from microshop.api_v1.auth.security import *
-from microshop.api_v1.auth.config import Production
+from gamescore.core.models import db_helper
+from gamescore.api_v1.auth.crud import get_user_by_username # security — модуль с функциями для проверки пароля, генерации токенов
+from gamescore.api_v1.auth.security import *
+from gamescore.api_v1.auth.config import Production
 
 router = APIRouter(tags=["Auth"])
 

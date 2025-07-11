@@ -1,9 +1,9 @@
-from microshop.api_v1.games import crud
-from microshop.core.models import db_helper
+from gamescore.api_v1.games import crud
+from gamescore.core.models import db_helper
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
-from microshop.templates import templates
+from gamescore.templates import templates
 
 router = APIRouter()
 

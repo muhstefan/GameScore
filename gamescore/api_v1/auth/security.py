@@ -3,9 +3,10 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
-from microshop.core.models import db_helper
+from gamescore.core.models import db_helper
 import os
-from microshop.api_v1.auth.crud import get_user_by_username
+from gamescore.api_v1.auth.crud import get_user_by_username
+
 
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"

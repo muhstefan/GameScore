@@ -9,8 +9,8 @@ import os
 
 sys.path.insert(0, os.getcwd())
 
-from microshop.core.config import settings
-from microshop.core.models.base import Base
+from gamescore.core.config import settings
+from gamescore.core.models.base import Base
 
 
 # this is the Alembic Config object, which provides

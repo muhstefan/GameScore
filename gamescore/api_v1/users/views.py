@@ -1,9 +1,9 @@
 from fastapi import APIRouter, status, Depends
-from microshop.core.models.users import UserCreateDB, UserUpdate, User
+from gamescore.core.models.users import UserCreateDB, UserUpdate, User
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
 from .dependencies import user_by_id, prepare_user_create, prepare_user_update
-from microshop.core.models import db_helper
+from gamescore.core.models import db_helper
 
 router = APIRouter(tags=["Users"])
 

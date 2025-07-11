@@ -1,8 +1,8 @@
-from microshop.core.models import db_helper
-from microshop.templates import templates
-from microshop.core.config import settings
-from microshop.api_v1 import router as router_v1
-from microshop.pages import router as pages_router
+from gamescore.core.models import db_helper
+from gamescore.templates import templates
+from gamescore.core.config import settings
+from gamescore.api_v1 import router as router_v1
+from gamescore.pages import router as pages_router
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, Request
 from sqlmodel import SQLModel

@@ -1,8 +1,8 @@
 from typing import Annotated
 from fastapi import Path, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from microshop.core.models import db_helper, User
-from microshop.core.models.users import UserCreate, UserUpdate, UserCreateDB
+from gamescore.core.models import db_helper, User
+from gamescore.core.models.users import UserCreate, UserUpdate, UserCreateDB
 from . import crud
 from passlib.context import CryptContext
 from sqlalchemy import select

@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
-from microshop.core.models import User
+from gamescore.core.models import User
 from sqlalchemy.engine import Result
 from sqlalchemy import select
-from microshop.core.models.users import UserCreateDB
+from gamescore.core.models.users import UserCreateDB
 
 async def get_users(session : AsyncSession) -> list[User]:
     stmt = select(User).order_by(User.id)

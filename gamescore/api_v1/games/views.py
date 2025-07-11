@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException,status, Depends
-from microshop.core.models.games import GameUpdate,Game , GameCreate
+from gamescore.core.models.games import GameUpdate,Game , GameCreate
 from . import crud
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id
-from microshop.core.db import get_db
-from microshop.api_v1.auth import get_current_user
+from gamescore.core.db import get_db
+from gamescore.api_v1.auth import get_current_user
 
 router = APIRouter(tags=["Games"])
 

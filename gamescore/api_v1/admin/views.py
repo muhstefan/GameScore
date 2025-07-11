@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from microshop.api_v1.auth.security import require_admin
+from gamescore.api_v1.auth.security import require_admin
 
 
 router = APIRouter(tags=["Admin"])

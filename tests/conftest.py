@@ -1,5 +1,5 @@
-from microshop.main import app
-from microshop.core.db import get_db  # ваша функция-зависимость
+from gamescore.main import app
+from gamescore.core.db import get_db  # ваша функция-зависимость
 from test_db_helper import db_helper_test  # ваш тестовый db_helper
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport

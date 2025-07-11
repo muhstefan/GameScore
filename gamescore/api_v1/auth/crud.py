@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from microshop.core.models import User
+from gamescore.core.models import User
 
 async def get_user_by_username(session, username: str):
     statement = select(User).where(User.username == username)

@@ -1,7 +1,7 @@
 from typing import Annotated
 from fastapi import Path, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from microshop.core.models import db_helper, Game
+from gamescore.core.models import db_helper, Game
 from . import crud
 
 

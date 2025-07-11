@@ -1,7 +1,7 @@
 from typing import Optional
 from sqlmodel import Field
 from pydantic import ConfigDict
-from microshop.core.models.base import BaseModel
+from gamescore.core.models.base import BaseModel
 
 
 class GameBase(BaseModel):
