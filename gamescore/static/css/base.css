@@ -259,3 +259,11 @@ a:focus {
   outline: none;
   box-shadow: 0 0 5px rgba(0,120,212,0.5);
 }
+
+/* Изображения */
+.game-image {
+    width: 80px; /* или другой размер */
+    height: auto;
+    display: block;
+    margin-bottom: 10px;
+}

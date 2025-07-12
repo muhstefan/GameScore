@@ -4,6 +4,9 @@
 
     {% for game in games %}
     <div class="game-container" id="container_{{ game.id }}">
+        {% if game.image %}
+        <img src="{{ game.image }}" class="game-image">
+        {% endif %}
         <h3>{{ game.name }} - {{ game.rating }}</h3>
         <button data-action="edit" data-id="{{ game.id }}" type="button">редактировать</button>
         <button data-action="delete" data-id="{{ game.id }}" type="button">удалить</button>
