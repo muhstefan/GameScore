@@ -5,6 +5,12 @@ from sqlalchemy.engine import Result
 from sqlalchemy import select
 
 
+async def create_games(session: AsyncSession, games_in: list[GameCreate]) -> list[Game]:
+
+    games = [Game(**game_in.model_dump()) for game_in in games_in]
+    session.add_all(games)
+    await session.commit()
+    return games
 
 async def get_games(session : AsyncSession) -> list[Game]:
     stmt = select(Game).order_by(Game.id)

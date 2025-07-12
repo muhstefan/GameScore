@@ -22,6 +22,15 @@ async def create_game(game_in: GameCreate,
                       ):
     return await crud.create_game(session=session,game_in=game_in)
 
+@router.post("/list/", response_model=list[Game], status_code=status.HTTP_201_CREATED)
+async def create_games(
+    games_in: list[GameCreate],
+    session: AsyncSession = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    return await crud.create_games(session=session, games_in=games_in)
+
+
 @router.get("/{game_id}/", response_model=Game)
 async def get_game(game : Game = Depends(game_by_id)):
     return game
