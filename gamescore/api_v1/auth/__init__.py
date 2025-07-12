@@ -1,1 +1,1 @@
-from .security import get_current_user,require_admin
+from .dependencies import get_current_user,require_admin

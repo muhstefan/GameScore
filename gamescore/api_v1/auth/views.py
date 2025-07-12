@@ -1,7 +1,8 @@
-from fastapi import APIRouter
+from fastapi import APIRouter,Depends,Cookie
 from fastapi.security import OAuth2PasswordRequestForm
-
 from fastapi import Response
+
+
 from gamescore.api_v1.auth.security import *
 from gamescore.api_v1.auth.config import Production
 from gamescore.core.db import get_db
@@ -42,24 +43,15 @@ async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depen
 
 
 @router.post("/refresh/")
-async def refresh_token(response: Response, session : AsyncSession = Depends(get_db), refresh_token: str | None = Cookie(default=None)):
-    if refresh_token is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token missing")
+async def refresh_token(
+        response: Response,
+        session: AsyncSession = Depends(get_db),
+        refresh_token: str | None = Cookie(default=None)
+):
+    user = await validate_refresh_token_and_get_user(session, refresh_token)
 
-    try:
-        payload = jwt.decode(refresh_token.removeprefix("Bearer "), SECRET_KEY, algorithms=[ALGORITHM])
-        username = payload.get("sub")
-        if username is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid refresh token")
-
-    user = await get_user_by_username(session, username)
-    if user is None:
-       raise HTTPException(status_code=401, detail="User not found")
-
-    new_access_token = create_access_token(data={"sub": username})
-    new_refresh_token = create_refresh_token(data={"sub": username})
+    new_access_token = create_access_token(data={"sub": user.username})
+    new_refresh_token = create_refresh_token(data={"sub": user.username})
 
     set_auth_cookies(response, new_access_token, new_refresh_token, secure=Production)
 

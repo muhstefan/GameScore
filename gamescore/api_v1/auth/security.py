@@ -1,18 +1,11 @@
 from passlib.context import CryptContext
 from datetime import datetime, timedelta, timezone
-from jose import jwt, JWTError
-from fastapi import Depends, HTTPException, status, Cookie
+from jose import jwt
+from gamescore.api_v1.auth.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES,REFRESH_TOKEN_EXPIRE_DAYS,SECRET_KEY
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from gamescore.core.db import get_db
-import os
+from fastapi import HTTPException, status
 from gamescore.api_v1.auth.crud import get_user_by_username
-
-
-SECRET_KEY = os.getenv("SECRET_KEY")
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 1
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+from jose import JWTError
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -33,35 +26,34 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return  encoded_jwt
 
-async def get_current_user(
-    access_token: str | None = Cookie(default=None),
-    session : AsyncSession = Depends(get_db)
-):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    if access_token is None:
-        raise credentials_exception
-    # Убираем префикс "Bearer ", если он есть
-    token = access_token.removeprefix("Bearer ").strip()
+
+async def validate_refresh_token_and_get_user(session: AsyncSession, refresh_token: str):
+    if refresh_token is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Refresh token missing"
+        )
+
+    token = refresh_token.removeprefix("Bearer ").strip()
+
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
+        username = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid refresh token"
+            )
     except JWTError:
-        raise credentials_exception
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid refresh token"
+        )
+
     user = await get_user_by_username(session, username)
     if user is None:
-        raise credentials_exception
-    return user
-
-def require_admin(current_user=Depends(get_current_user)):
-    if current_user.role != "admin":
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
         )
-    return current_user
+    return user
