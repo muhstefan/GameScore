@@ -8,9 +8,9 @@ from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
 from utils import create_random_game
 
-# Переопределяем сессию для подключения к тестовой бд
+
 async def override_get_db():
-    async for session in db_helper_test.session_dependency():
+    async with db_helper_test.session_dependency() as session:
         yield session
 
 
