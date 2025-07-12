@@ -49,7 +49,7 @@ async def create_some_games(async_client, login_admin):
 
 @pytest_asyncio.fixture
 async def create_admin():
-    async for session in db_helper_test.session_dependency(): #т.к обращаемся к бд а не к клиенту
+    async with db_helper_test.session_dependency() as session:
         admin_user = User(
             username="admin",
             email="admin@example.com",
@@ -60,7 +60,6 @@ async def create_admin():
         await session.commit()
         await session.refresh(admin_user)
         yield admin_user
-        break  # чтобы выйти из генератора сессии
 
 @pytest_asyncio.fixture
 async def login_admin(async_client, create_admin):
@@ -70,4 +69,3 @@ async def login_admin(async_client, create_admin):
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
     assert login_response.status_code == 200
-    print(async_client.cookies)
