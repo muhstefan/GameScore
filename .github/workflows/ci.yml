@@ -18,6 +18,10 @@ jobs:
     - name: Build Docker image
       run: docker build -t myapp:test .
 
-    # Гоняем наш контейнер и очищаем его
     - name: Run tests inside Docker container
-      run: docker run --rm myapp:test pytest -v --asyncio-mode=auto
+      run: |
+        docker run --rm \
+          -e SECRET_KEY="$SECRET_KEY" \
+          -e RAWG_API_KEY="$RAWG_API_KEY" \
+          myapp:test pytest -v --asyncio-mode=auto
+
