@@ -28,11 +28,6 @@ class DataBaseHelper:
             yield session
             await session.close()
 
-    @asynccontextmanager
-    async def session_dependency(self):
-        async with self.session_factory() as session:
-            yield session
-
     async def scoped_session_dependency(self):
         session = self.get_scoped_session()
         yield session

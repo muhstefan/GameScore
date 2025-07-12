@@ -1,8 +1,8 @@
 from gamescore.main import app
 from gamescore.core.models import User
 from gamescore.api_v1.users.dependencies import hash_password
-from gamescore.core.db import get_db  # ваша функция-зависимость
-from test_db_helper import db_helper_test  # ваш тестовый db_helper
+from gamescore.core.db import get_db
+from test_db_helper import db_helper_test
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
@@ -10,7 +10,7 @@ from utils import create_random_game
 
 
 async def override_get_db():
-    async with db_helper_test.session_dependency() as session:
+    async for session in db_helper_test.session_dependency():
         yield session
 
 
@@ -36,12 +36,12 @@ async def prepare_test_db_per_function():
 
 
 @pytest_asyncio.fixture
-async def create_some_games(async_client, login_admin):
+async def create_some_games(login_admin_session):
     print("Заполняем играми")
     games = []
     for _ in range(5):
         game_data = await create_random_game()
-        response = await async_client.post("/api/v1/games/", json=game_data)
+        response = await login_admin_session.post("/api/v1/games/", json=game_data)
         assert response.status_code == 201
         games.append(response.json())
     return games
@@ -49,7 +49,7 @@ async def create_some_games(async_client, login_admin):
 
 @pytest_asyncio.fixture
 async def create_admin():
-    async with db_helper_test.session_dependency() as session:
+    async for session in db_helper_test.session_dependency():
         admin_user = User(
             username="admin",
             email="admin@example.com",
@@ -61,11 +61,15 @@ async def create_admin():
         await session.refresh(admin_user)
         yield admin_user
 
+
 @pytest_asyncio.fixture
-async def login_admin(async_client, create_admin):
+async def login_admin_session(async_client, create_admin):
     # Логинимся под созданным админом
     login_response = await async_client.post("/api/v1/auth/login/",
         data={"username": create_admin.username, "password": "admin"},  # create_admin.username фикстура что то возвращает и мы к ней обращаемся
         headers={"Content-Type": "application/x-www-form-urlencoded"}
     )
     assert login_response.status_code == 200
+    return async_client
+    
+

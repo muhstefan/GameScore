@@ -3,7 +3,8 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt, JWTError
 from fastapi import Depends, HTTPException, status, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.core.models import db_helper
+
+from gamescore.core.db import get_db
 import os
 from gamescore.api_v1.auth.crud import get_user_by_username
 
@@ -34,7 +35,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
 
 async def get_current_user(
     access_token: str | None = Cookie(default=None),
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+    session : AsyncSession = Depends(get_db)
 ):
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,

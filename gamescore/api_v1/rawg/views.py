@@ -16,7 +16,8 @@ async def get_games(session: AsyncSession = Depends(get_db)):
     params = {
         "key": RAWG_API_KEY,
         "ordering": "-rating",
-        "page_size": 250
+        "page_size": 250,
+        "platforms": "4"
     }
 
     async with httpx.AsyncClient() as client:
