@@ -4,21 +4,11 @@
 
 {% block content %}
   <div class="container">
-    <h1>Мой профиль</h1>
-
-    <div>
-      <label>Имя пользователя:</label>
-      <span id="username">user123</span>
-    </div>
+    <h1>{{ user.username }}</h1>
 
     <div>
       <label>Почта:</label>
-      <span id="email">user@example.com</span>
-    </div>
-
-    <div>
-      <label>Пароль:</label>
-      <input type="password" value="password123" readonly />
+      <span id="email">{{ user.email }}</span>
     </div>
 
     <div>
