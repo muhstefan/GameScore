@@ -50,6 +50,8 @@ footer {
 /* Элементы */
 /* Кнопки — скруглённые с плавным эффектом при наведении */
 button {
+  display: block;      /* чтобы margin: auto работал */
+  margin: 0 auto;      /* центрирует кнопку по горизонтали */
   background: linear-gradient(135deg, #547bb8, #2e5a8a);
   border: none;
   border-radius: 12px;
@@ -69,6 +71,7 @@ button:hover{
   box-shadow: 0 6px 12px rgba(63, 122, 191, 0.6);
   outline: none;
 }
+
 
 /* Инпуты — минималистичные с лёгкой тенью */
 .form-group {
@@ -370,4 +373,9 @@ a:focus {
   border-radius: 4px;
   font-weight: bold;
   user-select: none;         /* запретить выделение текста */
+}
+
+.pagination-button {
+  display: inline-block;  /* или inline-flex */
+  margin: 0;              /* отменяем margin auto */
 }

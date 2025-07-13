@@ -1,5 +1,5 @@
 <div class="container" id="game_list_container">
-    <h1>СПИСОК ИГР</h1>
+    <h1>КАТАЛОГ ИГР</h1>
 
     <div class="games-grid">
         {% for game in games %}
@@ -33,22 +33,21 @@
     </div>
 </div>
 
-    <!-- Блок пагинации -->
-    <div class="pagination">
-      {% if page > 1 %}
-        <button class="pagination-button" data-page="{{ page - 1 }}">← Предыдущая</button>
-      {% endif %}
+<!-- Блок пагинации -->
+<div class="pagination">
+  {% if page > 1 %}
+    <button class="pagination-button" data-page="{{ page - 1 }}">← Предыдущая</button>
+  {% endif %}
 
-      {% for p in range(1, total_pages + 1) %}
-        {% if p == page %}
-          <span class="pagination-current">{{ p }}</span>
-        {% else %}
-          <button class="pagination-button" data-page="{{ p }}">{{ p }}</button>
-        {% endif %}
-      {% endfor %}
+  {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+      <span class="pagination-current">{{ p }}</span>
+    {% else %}
+      <button class="pagination-button" data-page="{{ p }}">{{ p }}</button>
+    {% endif %}
+  {% endfor %}
 
-      {% if page < total_pages %}
-        <button class="pagination-button" data-page="{{ page + 1 }}">Следующая →</button>
-      {% endif %}
-    </div>
+  {% if page < total_pages %}
+    <button class="pagination-button" data-page="{{ page + 1 }}">Следующая →</button>
+  {% endif %}
 </div>
