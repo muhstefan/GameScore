@@ -1,18 +1,34 @@
 <div class="container" id="game_list_container">
-
     <h1>СПИСОК ИГР</h1>
 
-    {% for game in games %}
-    <div class="game-container" id="container_{{ game.id }}">
-        {% if game.image %}
-        <img src="{{ game.image }}" class="game-image">
-        {% endif %}
-        <h3>{{ game.name }} - {{ game.rating }}</h3>
-        <button data-action="edit" data-id="{{ game.id }}" type="button">редактировать</button>
-        <button data-action="delete" data-id="{{ game.id }}" type="button">удалить</button>
+    <div class="games-grid">
+        {% for game in games %}
+        <div class="game-tile" id="container_{{ game.id }}">
+            {% if game.image %}
+            <img src="{{ game.image }}" class="game-image" alt="{{ game.name }}">
+            {% else %}
+            <div class="no-image-placeholder"></div>
+            {% endif %}
 
+            <div class="game-content">
+                <h3>{{ game.name }}</h3>
+
+                {% if game.rating %}
+                <div class="game-rating">{{ game.rating }}</div>
+                {% endif %}
+
+                <div class="game-actions">
+                    <button data-action="edit" data-id="{{ game.id }}" type="button">
+                        <i class="edit-icon"></i> Ред.
+                    </button>
+                    <button data-action="delete" data-id="{{ game.id }}" type="button">
+                        <i class="delete-icon"></i> Удал.
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="no-games">Игры не найдены</p>
+        {% endfor %}
     </div>
-    {% else %}
-    <p>Игры не найдены</p>
-    {% endfor %}
 </div>

@@ -261,9 +261,93 @@ a:focus {
 }
 
 /* Изображения */
+.games-grid {
+    display: flex;    /*  */
+    flex-wrap: wrap;    /*  */
+    gap: 20px;
+    padding: 20px 0;
+}
+
+.game-tile {
+    position: relative; /* позволяет заходит на объект сверху (перекрываем игру )  */
+    width: 200px; /* Фиксированная ширина квадратного тайла */
+    height: 200px; /* Фиксированная высота квадратного тайла */
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.3s ease;
+    background-color: #2a2a2a;
+    flex-shrink: 0; /* Предотвращает сжатие элементов */
+}
+
 .game-image {
-    width: 80px; /* или другой размер */
-    height: auto;
-    display: block;
-    margin-bottom: 10px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.no-image-placeholder {
+    width: 100%;
+    height: 100%;
+    background-color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+}
+
+.game-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px 15px 15px;
+    background: rgba(0, 0, 0, 0.7); /* Темный полупрозрачный фон */
+    color: white;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.game-content h3 {
+    color: white;
+    font-size: 16px;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8); /* Тень для текста */
+}
+
+.game-actions {
+    display: none;
+    margin-top: 10px;
+    justify-content: center;
+    gap: 10px;
+}
+
+.game-tile:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.game-tile:hover .game-image {
+    transform: scale(1.1);
+}
+
+.game-tile:hover .game-content {
+    transform: translateY(0);
+}
+
+.game-tile:hover .game-actions {
+    display: flex;
+}
+
+.game-rating {
+    margin-top: 5px;
+    font-weight: bold;
+    color: #ffcc00;
+}
+
+.no-games {
+    width: 100%;
+    text-align: center;
+    padding: 40px;
+    color: #666;
 }
