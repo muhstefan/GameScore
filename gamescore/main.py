@@ -1,11 +1,10 @@
+from starlette.responses import RedirectResponse
 from gamescore.core.models import db_helper
-from gamescore.middlewares.current_user import current_user_middleware
-from gamescore.templates import templates
 from gamescore.core.config import settings
 from gamescore.api_v1 import router as router_v1
 from gamescore.pages import router as pages_router
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request
+from fastapi import FastAPI
 from sqlmodel import SQLModel
 from pathlib import Path
 
@@ -23,21 +22,15 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)  # передаем функцию, но не вызываем ее, этим займется фреймворк.
 app.include_router(router_v1,prefix=settings.api_v1_prefix)
 app.include_router(pages_router)
-app.middleware("http")(current_user_middleware)
-
 
 BASE_DIR = Path(__file__).parent  # папка microshop
 STATIC_DIR = BASE_DIR / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
-
 @app.get("/")
-async def index_page(request: Request):
-    print(f"Request object: {request.url}")
-    return templates.TemplateResponse(
-        name="index.html",
-        request=request
-    )
+async def root():
+    return RedirectResponse(url="/pages/home")
+
 
 if __name__ == '__main__':
     uvicorn.run("main:app", reload=True)
