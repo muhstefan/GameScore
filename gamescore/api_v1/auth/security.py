@@ -57,3 +57,14 @@ async def validate_refresh_token_and_get_user(session: AsyncSession, refresh_tok
             detail="User not found"
         )
     return user
+
+async def get_user_from_token(token: str, session: AsyncSession):
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username = payload.get("sub")
+        if username is None:
+            return None
+    except JWTError:
+        return None
+    user = await get_user_by_username(session, username)
+    return user

@@ -1,4 +1,5 @@
 from gamescore.core.models import db_helper
+from gamescore.middlewares.current_user import current_user_middleware
 from gamescore.templates import templates
 from gamescore.core.config import settings
 from gamescore.api_v1 import router as router_v1
@@ -22,6 +23,8 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)  # передаем функцию, но не вызываем ее, этим займется фреймворк.
 app.include_router(router_v1,prefix=settings.api_v1_prefix)
 app.include_router(pages_router)
+app.middleware("http")(current_user_middleware)
+
 
 BASE_DIR = Path(__file__).parent  # папка microshop
 STATIC_DIR = BASE_DIR / "static"
