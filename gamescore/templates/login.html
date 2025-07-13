@@ -10,7 +10,7 @@
   {% endif %}
 
   <div class="container">
-    <form method="post" action="/api/v1/auth/login/">
+    <form id="login-form">
       <div class="form-group">
         <label for="username">Имя пользователя</label>
         <input type="text" id="username" name="username" required />
@@ -21,5 +21,10 @@
       </div>
       <button type="submit">Войти</button>
     </form>
+    <div id="error-message" style="color: red; margin-top: 1em;"></div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', path='js/login.js') }}" type="module" defer>></script>
 {% endblock %}

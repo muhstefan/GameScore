@@ -9,12 +9,6 @@
 </head>
 
 <body>
-    {% if user %}
-      <p>Привет, {{ user.username }}!</p>
-    {% else %}
-      <p>Вы не вошли в систему. <a href="/pages/login">Войти</a></p>
-    {% endif %}
-
     <header>
 <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
         {% block header %}
@@ -22,9 +16,13 @@
             <div class="container">
                 <a href="/" class="logo">GameScore</a>
                 <nav class="nav-links">
-                    <a href="/pages/games">Каталог игр</a>
+                {% if user %}
+                    <a href="/pages/me">{{ user.username }}</a>
+                {% else %}
                     <a href="/pages/login">Вход</a>
-                    <a href="/pages/contact">Регистрация</a>
+                {% endif %}
+                <a href="/pages/games">Каталог игр</a>
+                <a href="/pages/contact">Регистрация</a>
                 </nav>
             </div>
         </header>
