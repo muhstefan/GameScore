@@ -14,14 +14,15 @@ class ApiProcessor {
     this.EventProcessor = eventProcessor;
   }
 
-  refreshGameList() {
-    fetch('/pages/games/list/')  // URL, который возвращает готовый HTML списка
-      .then(response => response.text())
-      .then(html => {
-        document.getElementById('games_list_container').innerHTML = html;
-      })
-      .catch(console.error);
-  }
+    refreshGameList(page = 1) {
+      fetch(`/pages/games/list/?page=${page}`)
+        .then(response => response.text())
+        .then(html => {
+          document.getElementById('games_list_container').innerHTML = html;
+          this.EventProcessor.attachPaginationHandlers(); // Навесить обработчики на новые кнопки пагинации
+        })
+        .catch(console.error);
+    }
 
   delete_game(id) {
     fetch(`${BASE_URL}/api/v1/games/${id}/`, {
@@ -102,19 +103,18 @@ class BusinessLogic {
 
 
 class EventProcessor {
-
   constructor(apiProcessor, businessLogic) {
     this.apiProcessor = apiProcessor;
     this.businessLogic = businessLogic;
 
     gamesListContainer.addEventListener('click', (event) => {
       const btn = event.target.closest('button');
-      if (!btn) return; // Клик не по кнопке — игнорируем
+      if (!btn) return;
 
-      const id = btn.dataset.id;       // Получаем ID игры из data-атрибута
-      const action = btn.dataset.action; // Получаем действие (edit/delete)
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
 
-      if (!id || !action) return; // Если нет нужных данных — игнорируем
+      if (!id || !action) return;
 
       if (action === 'delete') {
         this.apiProcessor.delete_game(id);
@@ -123,8 +123,21 @@ class EventProcessor {
       }
     });
 
-    add_game_btn.onclick = this.openModal;
-    modal.onclick = this.closeModal;
+    add_game_btn.onclick = this.openModal.bind(this);
+    modal.onclick = this.closeModal.bind(this);
+  }
+
+  attachPaginationHandlers() {
+    const paginationButtons = document.querySelectorAll('.pagination-button');
+    paginationButtons.forEach(button => {
+      button.onclick = (event) => {
+        event.preventDefault();
+        const page = parseInt(button.dataset.page);
+        if (!isNaN(page)) {
+          this.apiProcessor.refreshGameList(page);
+        }
+      };
+    });
   }
 
   openModal() {
@@ -133,12 +146,13 @@ class EventProcessor {
 
   closeModal(event) {
     if (event.target === modal) {
-      form.reset();  //Очистка полей
-      delete form.dataset.editingId; // Сброс editingId
+      form.reset();
+      delete form.dataset.editingId;
       modal.style.display = 'none';
     }
   }
 }
+
 
 
 // --- Инициализация ---
@@ -147,3 +161,4 @@ const apiProcessor = new ApiProcessor();
 const businessLogic = new BusinessLogic(apiProcessor);
 const eventProcessor = new EventProcessor(apiProcessor, businessLogic);
 apiProcessor.setEventProcessor(eventProcessor);
+apiProcessor.refreshGameList();

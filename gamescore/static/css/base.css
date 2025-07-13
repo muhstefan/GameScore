@@ -351,3 +351,23 @@ a:focus {
     padding: 40px;
     color: #666;
 }
+
+
+/* панель пагинации */
+.pagination {
+  display: flex;              /* используем flexbox */
+  justify-content: center;    /* центрируем по горизонтали */
+  gap: 8px;                   /* расстояние между кнопками */
+  margin-top: 20px;           /* отступ сверху для отделения от списка */
+  flex-wrap: wrap;            /* если много кнопок — перенос на новую строку */
+}
+
+/* Выбранная кнопка */
+.pagination-current {
+  background-color: #4CAF50; /* зелёный фон */
+  color: white;              /* белый текст */
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-weight: bold;
+  user-select: none;         /* запретить выделение текста */
+}

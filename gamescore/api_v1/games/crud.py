@@ -2,7 +2,13 @@ from gamescore.core.models import Game
 from gamescore.core.models.games import GameCreate,GameUpdate
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
-from sqlalchemy import select
+from sqlalchemy import select, func
+
+
+async def count_games(session: AsyncSession) -> int:
+    result = await session.execute(select(func.count()).select_from(Game))
+    total = result.scalar_one()
+    return total
 
 
 async def create_games(session: AsyncSession, games_in: list[GameCreate]) -> list[Game]:
@@ -17,6 +23,11 @@ async def get_games(session : AsyncSession) -> list[Game]:
     result : Result = await session.execute(stmt)
     games = result.scalars().all()  # scalars аналог **
     return list(games)
+
+async def get_games_pagination(session: AsyncSession, limit: int, offset: int) -> list[Game]:
+    query = select(Game).order_by(Game.name).limit(limit).offset(offset)
+    result = await session.execute(query)
+    return list(result.scalars().all())
 
 async def get_game(session: AsyncSession,game_id: int)-> Game | None:
     return await session.get(Game, game_id)

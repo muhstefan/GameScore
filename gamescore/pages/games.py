@@ -4,18 +4,43 @@ from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.encoders import jsonable_encoder
 from gamescore.templates import templates
+from fastapi import Query
+
 
 router = APIRouter()
 
-@router.get("/games")
+@router.get("/games/")
 async def products_page(request: Request, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
     games = await crud.get_games(session)
     games_dicts = jsonable_encoder(games)  # Преобразуем модели в JSON-совместимые словари
     return templates.TemplateResponse("games.html", {"request": request, "games": games_dicts})
 
-@router.get("/games/list")
-async def games_list_container(request: Request, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
-    games = await crud.get_games(session)
+@router.get("/games/list/")
+async def games_list_container(
+    request: Request,
+    page: int = Query(1, ge=1),  # параметр page с дефолтом 1 и минимум 1
+    session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+):
+    GAMES_PER_PAGE = 40
+
+    # Считаем общее количество игр
+    total_games = await crud.count_games(session)
+    total_pages = (total_games + GAMES_PER_PAGE - 1) // GAMES_PER_PAGE
+
+    offset = (page - 1) * GAMES_PER_PAGE
+
+    # Получаем игры для текущей страницы
+    games = await crud.get_games_pagination(session, limit=GAMES_PER_PAGE, offset=offset)
     games_dicts = jsonable_encoder(games)
-    # Возвращаем только часть шаблона, отвечающую за список игр
-    return templates.TemplateResponse("games_list_container.html", {"request": request, "games": games_dicts})
+
+    # Возвращаем только часть шаблона с играми и пагинацией
+    return templates.TemplateResponse(
+        "games_list_container.html",
+        {
+            "request": request,
+            "games": games_dicts,
+            "page": page,
+            "total_pages": total_pages,
+        }
+    )
+
