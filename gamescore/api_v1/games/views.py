@@ -4,7 +4,7 @@ from . import crud
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id
 from gamescore.core.db import get_db
-from gamescore.api_v1.auth import get_current_user
+from gamescore.api_v1.auth import get_user_for_api
 
 router = APIRouter(tags=["Games"])
 
@@ -12,13 +12,13 @@ router = APIRouter(tags=["Games"])
 
 @router.get("/",response_model=list[Game])
 async def get_games(session : AsyncSession = Depends(get_db),
-                    current_user=Depends(get_current_user)):
+                    current_user=Depends(get_user_for_api)):
     return await crud.get_games(session=session)
 
 @router.post("/", response_model=Game,status_code=status.HTTP_201_CREATED)
 async def create_game(game_in: GameCreate,
                       session : AsyncSession = Depends(get_db),
-                      current_user=Depends(get_current_user)
+                      current_user=Depends(get_user_for_api)
                       ):
     return await crud.create_game(session=session,game_in=game_in)
 
@@ -26,7 +26,7 @@ async def create_game(game_in: GameCreate,
 async def create_games(
     games_in: list[GameCreate],
     session: AsyncSession = Depends(get_db),
-    current_user=Depends(get_current_user)
+    current_user=Depends(get_user_for_api)
 ):
     return await crud.create_games(session=session, games_in=games_in)
 

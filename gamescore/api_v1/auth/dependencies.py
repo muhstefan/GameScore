@@ -4,7 +4,7 @@ from gamescore.api_v1.auth.security import get_user_from_token
 from gamescore.core.db import get_db
 
 
-async def get_current_user(
+async def get_user_for_api(
     access_token: str | None = Cookie(default=None),
     session: AsyncSession = Depends(get_db)
 ):
@@ -24,7 +24,20 @@ async def get_current_user(
 
     return user
 
-def require_admin(current_user=Depends(get_current_user)):
+async def get_user_for_website(
+    access_token: str | None = Cookie(default=None),
+    session: AsyncSession = Depends(get_db)
+):
+    if access_token is None:
+        return None  # Нет токена — пользователь не залогинен
+
+    token = access_token.removeprefix("Bearer ").strip()
+    user = await get_user_from_token(token, session)
+
+    return user  # Если пользователь не найден — вернётся None
+
+
+def require_admin(current_user=Depends(get_user_for_api)):
     if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

@@ -7,7 +7,14 @@
     <title>{% block title %}Заголовок страницы{% endblock %}</title>
     {% block head %}{% endblock %}
 </head>
+
 <body>
+    {% if user %}
+      <p>Привет, {{ user.username }}!</p>
+    {% else %}
+      <p>Вы не вошли в систему. <a href="/pages/login">Войти</a></p>
+    {% endif %}
+
     <header>
 <link rel="stylesheet" href="{{ url_for('static', path='css/base.css') }}">
         {% block header %}

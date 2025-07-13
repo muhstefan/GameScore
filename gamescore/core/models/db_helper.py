@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker,async_scoped_session
 from asyncio import current_task
 from gamescore.core.config import settings
-from contextlib import asynccontextmanager
+
 
 class DataBaseHelper:
     def __init__(self, url : str, echo : bool = False):

@@ -1,3 +1,4 @@
+from gamescore.api_v1.auth.dependencies import get_user_for_website
 from gamescore.api_v1.games import crud
 from gamescore.core.models import db_helper
 from fastapi import APIRouter, Request, Depends
@@ -10,10 +11,12 @@ from fastapi import Query
 router = APIRouter()
 
 @router.get("/games/")
-async def products_page(request: Request, session: AsyncSession = Depends(db_helper.scoped_session_dependency)):
+async def products_page(request: Request,
+                        session: AsyncSession = Depends(db_helper.scoped_session_dependency),
+                        user = Depends(get_user_for_website)):
     games = await crud.get_games(session)
     games_dicts = jsonable_encoder(games)  # Преобразуем модели в JSON-совместимые словари
-    return templates.TemplateResponse("games.html", {"request": request, "games": games_dicts})
+    return templates.TemplateResponse("games.html", {"request": request, "games": games_dicts, "user": user})
 
 @router.get("/games/list/")
 async def games_list_container(
