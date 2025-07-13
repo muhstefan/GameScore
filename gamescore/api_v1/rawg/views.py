@@ -18,7 +18,8 @@ async def get_games(session: AsyncSession = Depends(get_db)):
         "key": RAWG_API_KEY,
         "ordering": "-rating",
         "page_size": 40,
-        "platforms": "4"
+        "platforms": "4",
+        "metacritic": "65,100"
     }
     try:
         raw_games = await fetch_multiple_pages(params, RAWG_BASE_URL, pages=5)

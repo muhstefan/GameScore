@@ -1,6 +1,6 @@
 from gamescore.core.models.games import GameCreate
 
-excluded_tags = {"romance" , "nsfw", "adult", "erotic"}
+
 
 def parse_games(raw_games: list[dict]) -> list[GameCreate]:
     games = []
@@ -8,13 +8,17 @@ def parse_games(raw_games: list[dict]) -> list[GameCreate]:
         name = raw_game.get("name")
         image = raw_game.get("background_image")
 
-        rating = raw_game.get("esrb_rating")
-        rating_id = rating.get("id") if rating else None
+        #excluded_tags = {"romance", "nsfw", "adult", "erotic"}
+        # Optional ФИЛЬТРАЦИЯ ИГР
+        # rating = raw_game.get("esrb_rating")
+        # rating_id = rating.get("id") if rating else None
+        # tags = raw_game.get("tags", [])
+        # game_tag_names = {tag.get("name", "").lower() for tag in tags}
+        # if name and rating_id != 5 and not game_tag_names.intersection(excluded_tags):
+        #     games.append(GameCreate(name=name, image=image))
 
-        tags = raw_game.get("tags", [])
-        game_tag_names = {tag.get("name", "").lower() for tag in tags}
-
-        if name and rating_id != 5 and not game_tag_names.intersection(excluded_tags):
+        if name:
             games.append(GameCreate(name=name, image=image))
+
 
     return games
