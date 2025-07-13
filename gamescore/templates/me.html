@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Мой профиль{% endblock %}
+
+{% block content %}
+  <div class="container">
+    <h1>Мой профиль</h1>
+
+    <div>
+      <label>Имя пользователя:</label>
+      <span id="username">user123</span>
+    </div>
+
+    <div>
+      <label>Почта:</label>
+      <span id="email">user@example.com</span>
+    </div>
+
+    <div>
+      <label>Пароль:</label>
+      <input type="password" value="password123" readonly />
+    </div>
+
+    <div>
+      <a href="/change-password">Сменить пароль</a>
+    </div>
+
+    <div>
+      <a href="/logout">Выйти</a>
+    </div>
+  </div>
+{% endblock %}
