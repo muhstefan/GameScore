@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from gamescore.api_v1.rawg.client import fetch_games_from_rawg
+from gamescore.api_v1.rawg.client import fetch_multiple_pages
 from gamescore.api_v1.rawg.service import parse_games
 from gamescore.core.db import get_db
 from gamescore.api_v1.games.crud import create_games
@@ -21,7 +21,7 @@ async def get_games(session: AsyncSession = Depends(get_db)):
         "platforms": "4"
     }
     try:
-        raw_games = await fetch_games_from_rawg(params, RAWG_BASE_URL)
+        raw_games = await fetch_multiple_pages(params, RAWG_BASE_URL, pages=5)
     except Exception:
         raise HTTPException(status_code=502, detail="Ошибка при запросе к RAWG API")
     games_to_create = parse_games(raw_games)
