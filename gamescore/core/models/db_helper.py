@@ -12,10 +12,10 @@ class DataBaseHelper:
         self.session_factory = async_sessionmaker(
             bind =  self.engine,
             autoflush= False,  #  Подготовка к комиту
-            autocommit = False,  # Вопросики, кажется такого нет.
             expire_on_commit= False
         )
 
+    # Вспомогательная для scoped_session_dependency
     def get_scoped_session(self):
         session = async_scoped_session(
             session_factory=self.session_factory,
@@ -28,6 +28,7 @@ class DataBaseHelper:
             yield session
             await session.close()
 
+    # Дает 1 сессию на все запросы функции, может экономить ресурсы, если много вызовов сессий
     async def scoped_session_dependency(self):
         session = self.get_scoped_session()
         yield session
