@@ -5,9 +5,6 @@ from sqlmodel import Relationship
 from gamescore.core.models.associations import UserGame
 from gamescore.core.models.base import BaseModel
 
-
-
-
 class UserBase(BaseModel):
     username: str = Field(..., max_length=25)
     email: str = Field(..., max_length=25)

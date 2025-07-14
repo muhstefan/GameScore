@@ -5,9 +5,6 @@ from gamescore.core.models.associations import UserGame
 from gamescore.core.models.base import BaseModel
 from sqlmodel import Relationship
 
-
-
-
 class GameBase(BaseModel):
     name: str
     description: Optional[str] = None
