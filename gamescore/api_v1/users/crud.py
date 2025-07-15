@@ -5,6 +5,7 @@ from gamescore.core.models import User
 from sqlalchemy.engine import Result
 from sqlalchemy import select
 from gamescore.core.models.users import UserCreateDB
+from gamescore.core.models.genres import Genre
 from gamescore.api_v1.games.crud import get_game
 
 async def get_users(session : AsyncSession) -> list[User]:
@@ -13,12 +14,8 @@ async def get_users(session : AsyncSession) -> list[User]:
     users = result.scalars().all()  # scalars аналог **
     return list(users)
 
-#Это метод пред загрузки пользователя И сразу всех его связей, так надо чтобы от ленивой загрузки не тормозить
-async def get_user(session: AsyncSession, user_id: int) -> User | None:
-    result = await session.execute(
-        select(User).options(selectinload(User.games)).where(User.id == user_id)
-    )
-    return result.scalars().first()
+async def get_user(session: AsyncSession,user_id: int)-> User | None:
+    return await session.get(User, user_id)
 
 async def create_user(session: AsyncSession, user_data: UserCreateDB):
     user = User(**user_data.model_dump())
@@ -55,3 +52,22 @@ async def add_game_to_user(session: AsyncSession,
         user.games.append(game)
         session.add(user)
         await session.commit()
+
+
+async def create_genre_for_user(session: AsyncSession,
+                                user_id: int,
+                                genre_name: str) -> Genre:
+    # Проверяем, есть ли уже жанр с таким именем у пользователя
+    result = await session.execute(
+        select(Genre).where(Genre.user_id == user_id, Genre.name == genre_name)
+    )
+    existing_genre = result.scalars().first()
+    if existing_genre:
+        raise ValueError("Жанр с таким именем уже существует")
+
+    # Создаём новый жанр
+    genre = Genre(name=genre_name, user_id=user_id)
+    session.add(genre)
+    await session.commit()
+    await session.refresh(genre)
+    return genre

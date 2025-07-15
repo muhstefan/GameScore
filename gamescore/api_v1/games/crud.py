@@ -3,7 +3,7 @@ from gamescore.core.models.games import GameCreate,GameUpdate
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
 from sqlalchemy import select, func
-
+from sqlalchemy.orm import selectinload
 
 async def count_games(session: AsyncSession) -> int:
     result = await session.execute(select(func.count()).select_from(Game))
@@ -31,6 +31,7 @@ async def get_games_pagination(session: AsyncSession, limit: int, offset: int) -
 
 async def get_game(session: AsyncSession,game_id: int)-> Game | None:
     return await session.get(Game, game_id)
+
 
 async def create_game(session: AsyncSession, game_in: GameCreate):
     game = Game(**game_in.model_dump())
