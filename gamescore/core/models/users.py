@@ -10,7 +10,7 @@ class UserBase(BaseModel):
     email: str = Field(..., max_length=25)
 
 
-class User(BaseModel, table=True):
+class User(UserBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     password_hash: str
     role: str = Field(default="user")
@@ -31,7 +31,7 @@ class UserUpdate(BaseModel):
     email: Optional[str] = Field(default=None, max_length=25)
     password: Optional[str] = Field(default=None, max_length=25, min_length=8)
 
-class UserResponse(UserBase):
+class UserPublic(UserBase):
     id: int
     model_config = ConfigDict(from_attributes=True)
 

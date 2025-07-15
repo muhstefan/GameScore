@@ -13,18 +13,6 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
 
-async def user_by_id(
-    user_id: Annotated[int, Path],
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency)
-) -> User:
-    user = await crud.get_user(session=session, user_id=user_id)
-    if user:
-        return user
-    raise HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND,
-        detail=f"User {user_id} NOT FOUND"
-    )
-
 async def prepare_user_create(user_in: UserCreate) -> UserCreateDB:
     hashed_password = hash_password(user_in.password)
     return UserCreateDB(

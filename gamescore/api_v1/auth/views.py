@@ -1,8 +1,5 @@
-from fastapi import APIRouter,Depends,Cookie
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Response
-
-
+from fastapi import Depends, HTTPException, status, Cookie, Response,APIRouter
 from gamescore.api_v1.auth.security import *
 from gamescore.api_v1.auth.config import Production
 from gamescore.core.db import get_db
@@ -27,17 +24,16 @@ def set_auth_cookies(response: Response, access_token: str, refresh_token: str, 
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60
     )
 
-
 @router.post("/login/")
 async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends(), session : AsyncSession = Depends(get_db)):
     user = await get_user_by_username(session, form_data.username)
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect username or password")
 
-    access_token = create_access_token(data={"sub": user.username})
-    refresh_token = create_refresh_token(data={"sub": user.username})
+    new_access_token = create_access_token(data={"sub": user.username})
+    new_refresh_token = create_refresh_token(data={"sub": user.username})
 
-    set_auth_cookies(response, access_token, refresh_token, secure=Production)
+    set_auth_cookies(response, new_access_token, new_refresh_token, secure=Production)
 
     return {"message": "Logged in successfully"}
 

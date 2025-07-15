@@ -3,14 +3,6 @@
 {% block title %}Игры{% endblock %}
 {% block scripts %}
 
-
-<script>
-  const games = {{ games | tojson }};
-</script>
-<script src="{{ url_for('static', path='js/gamesPage.js') }}" type="module" defer>>
-</script>
-
-
 {% endblock %}
 {% block content %}
 <div class="addition-container">
@@ -21,7 +13,7 @@
 <div id="games_list_container">
   <!-- Сюда будет подгружаться список игр через AJAX -->
 </div>
-
+<script src="{{ url_for('static', path='js/gamesPage.js') }}" type="module" defer>></script>
 <!--Модальное окно(по умолчанию скрыто)-->
 <div id="myModal" class="modal">
   <div class="modal-content">

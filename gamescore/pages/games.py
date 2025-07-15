@@ -14,9 +14,7 @@ router = APIRouter()
 async def products_page(request: Request,
                         session: AsyncSession = Depends(db_helper.scoped_session_dependency),
                         user = Depends(get_user_for_website)):
-    games = await crud.get_games(session)
-    games_dicts = jsonable_encoder(games)  # Преобразуем модели в JSON-совместимые словари
-    return templates.TemplateResponse("games.html", {"request": request, "games": games_dicts, "user": user})
+    return templates.TemplateResponse("games.html", {"request": request, "user": user})
 
 @router.get("/games/list/")
 async def games_list_container(

@@ -3,7 +3,6 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 from gamescore.api_v1.auth.config import ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES,REFRESH_TOKEN_EXPIRE_DAYS,SECRET_KEY
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import HTTPException, status
 from gamescore.api_v1.auth.crud import get_user_by_username
 from jose import JWTError
 
@@ -29,34 +28,19 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
 
 async def validate_refresh_token_and_get_user(session: AsyncSession, refresh_token: str):
     if refresh_token is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token missing"
-        )
+        return None
 
     token = refresh_token.removeprefix("Bearer ").strip()
-
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username = payload.get("sub")
         if username is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid refresh token"
-            )
+            return None
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token"
-        )
+        return None
 
     user = await get_user_by_username(session, username)
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="User not found"
-        )
-    return user
+    return user  # может быть None, если не найден
 
 async def get_user_from_token(token: str, session: AsyncSession):
     try:
