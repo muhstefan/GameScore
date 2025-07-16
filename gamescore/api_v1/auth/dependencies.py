@@ -1,43 +1,35 @@
-from fastapi import Depends, HTTPException, status, Cookie
+from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.api_v1.auth.security import get_user_from_token
 from gamescore.core.db import get_db
+from gamescore.api_v1.users.crud import get_user
 
 
-async def get_user_for_api(
-    access_token: str | None = Cookie(default=None),
+async def get_user_strict(
+    request: Request, # Добавляем Request как параметр
     session: AsyncSession = Depends(get_db)
 ):
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    if access_token is None:
-        raise credentials_exception
-
-    token = access_token.removeprefix("Bearer ").strip()
-    user = await get_user_from_token(token, session)
-
+    # Вызываем get_user_for_website, передавая ей request и session
+    user = await get_user_soft(request, session)
     if user is None:
-        raise credentials_exception
-
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     return user
 
-async def get_user_for_website(
-    access_token: str | None = Cookie(default=None),
+async def get_user_soft(
+    request: Request,
     session: AsyncSession = Depends(get_db)
 ):
-    if access_token is None:
-        return None  # Нет токена — пользователь не залогинен
+    user_id = getattr(request.state, "user_id", None)
+    if user_id is None:
+        return None  # Гость или неавторизованный пользователь
 
-    token = access_token.removeprefix("Bearer ").strip()
-    user = await get_user_from_token(token, session)
+    user = await get_user(session, int(user_id))
+    return user
 
-    return user  # Если пользователь не найден — вернётся None
-
-
-def require_admin(current_user=Depends(get_user_for_api)):
+def require_admin(current_user=Depends(get_user_strict)):
     if current_user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

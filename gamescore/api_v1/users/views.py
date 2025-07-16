@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
 from .dependencies import prepare_user_create, prepare_user_update
 from gamescore.core.db import get_db
-from gamescore.api_v1.auth import get_user_for_api
+from gamescore.api_v1.auth import get_user_strict
 
 router = APIRouter(tags=["Users"])
 
@@ -21,7 +21,7 @@ async def create_user(
 @router.get("/{user_id}/", response_model=UserPublic)
 async def get_user(
                 user_id: int,
-                current_user: User = Depends(get_user_for_api), # Проверка, что пользователь login in
+                current_user: User = Depends(get_user_strict), # Проверка, что пользователь login in
                 session: AsyncSession = Depends(get_db)
             ):
     user = await crud.get_user(session, user_id)
@@ -32,7 +32,7 @@ async def update_current_user(
     user_update: UserUpdate,
     update_data: dict = Depends(prepare_user_update),
     session : AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_user_for_api)
+    current_user: User = Depends(get_user_strict)
 ):
     user_id = current_user.id
     updated_user = await crud.update_user(session=session, user_id=user_id, update_data=update_data)

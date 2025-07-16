@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.orm import selectinload
-
 from gamescore.core.models import User
 from sqlalchemy.engine import Result
 from sqlalchemy import select
