@@ -4,7 +4,6 @@ from gamescore.api_v1.auth.security import verify_password, generate_and_set_tok
 from gamescore.api_v1.auth.config import Production
 from gamescore.core.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.api_v1.auth.config import ACCESS_TOKEN_EXPIRE_MINUTES,REFRESH_TOKEN_EXPIRE_DAYS
 from gamescore.api_v1.auth.crud import get_user_by_username
 
 
