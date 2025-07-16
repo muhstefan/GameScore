@@ -41,7 +41,7 @@ async def create_some_games(login_admin_session):
     games = []
     for _ in range(5):
         game_data = await create_random_game()
-        response = await login_admin_session.post("/api/v1/games/", json=game_data)
+        response = await login_admin_session.post("/api/v1/admin/games/", json=game_data)
         assert response.status_code == 201
         games.append(response.json())
     return games
