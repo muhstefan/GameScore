@@ -1,3 +1,5 @@
+from sqlalchemy import UniqueConstraint
+
 from gamescore.core.models.users import UserGameGenre
 from gamescore.core.models.base import BaseModel
 from sqlmodel import Relationship
@@ -21,4 +23,8 @@ class Genre(BaseModel, table=True):
         back_populates="genres",
         link_model=UserGameGenre,
         sa_relationship_kwargs={"overlaps": "user_game_genres,user_game"}
+    )
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "id", name="uq_user_genre_name"),
     )

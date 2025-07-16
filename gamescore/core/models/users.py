@@ -1,5 +1,6 @@
 from typing import Optional
 from pydantic import ConfigDict
+from sqlalchemy import UniqueConstraint
 from gamescore.core.models.base import BaseModel
 from sqlmodel import Relationship ,Field
 from enum import Enum
@@ -37,9 +38,6 @@ class UserPublic(UserBase):
 
 # ТАБЛИЦЫ СВЯЗЕЙ
 
-class GameStatus(str, Enum):
-    done = "done"
-    wait = "wait"
 
 class UserGameGenre(BaseModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -56,8 +54,21 @@ class UserGameGenre(BaseModel, table=True):
         sa_relationship_kwargs={"overlaps": "user_games"}
     )
 
+    __table_args__ = (
+        UniqueConstraint('user_game_id', 'genre_id', name='uq_user_game_genre'),
+    )
+
+
+
 
 # Добавление игр к пользователю
+
+class GameStatus(str, Enum):
+    wait = "wait"
+    done = "done"
+
+
+
 class UserGame(BaseModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
 
@@ -79,3 +90,10 @@ class UserGame(BaseModel, table=True):
         back_populates="user_game",
         sa_relationship_kwargs={"overlaps": "genres"}
     )
+    __table_args__ = (
+        UniqueConstraint("user_id", "game_id", name="uq_user_game"),
+    )
+
+class UserGameUpdate(BaseModel):
+    status: Optional[GameStatus] = None
+    rating: Optional[int] = None

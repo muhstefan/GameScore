@@ -1,11 +1,13 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
-from sqlalchemy.orm import selectinload
 from gamescore.core.models import User
 from sqlalchemy.engine import Result
 from sqlalchemy import select
-from gamescore.core.models.users import UserCreateDB
+from gamescore.core.models.users import UserCreateDB, UserGame, UserGameGenre, GameStatus, UserGameUpdate
 from gamescore.core.models.genres import Genre
-from gamescore.api_v1.games.crud import get_game
+from fastapi import HTTPException
+from gamescore.core.db import get_one_by_fields
+from sqlalchemy.orm import selectinload
 
 async def get_users(session : AsyncSession) -> list[User]:
     stmt = select(User).order_by(User.id)
@@ -40,33 +42,81 @@ async def delete_user(session: AsyncSession,
     await session.delete(user)
     await session.commit()
 
+
 async def add_game_to_user(session: AsyncSession,
                            user_id: int,
                            game_id: int):
-    user = await get_user(session, user_id)
-    game = await get_game(session, game_id)
-    if not user or not game:
-        raise ValueError("Пользователь или игра не найдены")
-    if game not in user.games:
-        user.games.append(game)
-        session.add(user)
+    user_game = UserGame(user_id=user_id, game_id=game_id, status=GameStatus.wait)
+    session.add(user_game)
+    try:
         await session.commit()
-
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(
+            status_code=409, detail="Игра уже добавлена к пользователю"
+        )
 
 async def create_genre_for_user(session: AsyncSession,
                                 user_id: int,
                                 genre_name: str) -> Genre:
-    # Проверяем, есть ли уже жанр с таким именем у пользователя
-    result = await session.execute(
-        select(Genre).where(Genre.user_id == user_id, Genre.name == genre_name)
-    )
-    existing_genre = result.scalars().first()
-    if existing_genre:
-        raise ValueError("Жанр с таким именем уже существует")
-
-    # Создаём новый жанр
     genre = Genre(name=genre_name, user_id=user_id)
     session.add(genre)
+    try:
+        await session.commit()
+        await session.refresh(genre)
+        return genre
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail="Жанр с таким именем уже существует")
+
+async def add_genre_to_game_for_user(
+    session: AsyncSession,
+    user_id: int,
+    game_id: int,
+    genre_id: int
+):
+    # 1. Найти UserGame
+    user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
+    if not user_game:
+        raise HTTPException(status_code=404, detail="Игры пользователя не найдены")
+
+    # 2. Найти Genre по id и user_id для безопасности, чтобы жанр принадлежал именно этому пользователю
+    genre = await get_one_by_fields(session, Genre, {"user_id": user_id, "id": genre_id})
+    if not genre:
+        raise HTTPException(status_code=404, detail=f"Жанр с id '{genre_id}' не найден для текущего пользователя.")
+
+    # 3. Создаём связь
+    user_game_genre = UserGameGenre(user_game_id=user_game.id, genre_id=genre.id)
+    session.add(user_game_genre)
+
+    try:
+        await session.commit()
+    except IntegrityError:
+        await session.rollback()
+        raise HTTPException(status_code=400, detail="Жанр уже добавлен к игре пользователя")
+
+
+async def update_user_game(
+        session: AsyncSession,
+        user_id: int,
+        game_id: int,
+        user_game_update: UserGameUpdate,
+        partial: bool = True,
+) -> UserGame:
+    # 1. Найти объект UserGame по ключам
+    user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
+    if not user_game:
+        raise HTTPException(status_code=404, detail="Запись UserGame не найдена")
+
+    # 2. Получить словарь обновления из Pydantic-модели
+    update_data = user_game_update.model_dump(exclude_unset=partial)  # Для Pydantic v2
+
+    # 3. Обновить поля у модели SQLAlchemy
+    for field, value in update_data.items():
+        setattr(user_game, field, value)
+
+    # 4. Сохранить изменения
+    session.add(user_game)
     await session.commit()
-    await session.refresh(genre)
-    return genre
+    await session.refresh(user_game)
+    return user_game
