@@ -8,7 +8,6 @@ from gamescore.core.db import get_db
 from gamescore.api_v1.auth import get_user_strict
 
 router = APIRouter(tags=["Users"])
-router.include_router(user_games_router)
 
 # Создавать пользователей может даже не вошедший в систему пользователь (защита от DDOS?)
 @router.post("/", response_model=User, status_code=status.HTTP_201_CREATED)
