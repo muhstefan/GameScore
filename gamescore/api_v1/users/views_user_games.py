@@ -1,8 +1,9 @@
-from fastapi import APIRouter, status, Depends
-from gamescore.core.models.users import UserGameUpdate, UserGame
+from typing import Annotated
+from fastapi import APIRouter, status, Depends, Query
+from gamescore.core.models.users import UserGameUpdate, UserGame, UserGameFilter
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
-from .crud import update_user_game
+from .crud import update_user_game, get_user_games
 
 from gamescore.core.db import get_db
 
@@ -56,3 +57,13 @@ async def update_user_game_view(
         partial=True,
     )
     return updated_user_game
+
+@router.get("/users/{user_id}/games")
+async def read_user_games(
+    user_id: int,
+    filters: Annotated[UserGameFilter, Query()],
+    session: AsyncSession = Depends(get_db)
+):
+
+    user_games = await get_user_games(session=session, user_id=user_id, filters=filters)
+    return user_games

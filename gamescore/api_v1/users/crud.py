@@ -1,9 +1,12 @@
+from typing import cast
+
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from gamescore.core.models import User
 from sqlalchemy.engine import Result
-from sqlalchemy import select
-from gamescore.core.models.users import UserCreateDB, UserGame, UserGameGenre, GameStatus, UserGameUpdate
+from sqlalchemy import select, ColumnElement
+from gamescore.core.models.users import UserCreateDB, UserGame, UserGameGenre, GameStatus, UserGameUpdate, \
+    UserGameFilter
 from gamescore.core.models.genres import Genre
 from fastapi import HTTPException
 from gamescore.core.db import get_one_by_fields
@@ -120,3 +123,24 @@ async def update_user_game(
     await session.commit()
     await session.refresh(user_game)
     return user_game
+
+
+async def get_user_games(
+    session: AsyncSession,
+    user_id: int,
+    filters: UserGameFilter
+) -> list[UserGame]:
+    query = select(UserGame).where(cast(ColumnElement[bool], UserGame.user_id == user_id))
+
+    if filters.status:
+        query = query.where(cast(ColumnElement[bool],UserGame.status == filters.status))
+
+    if filters.min_rating:
+        query = query.where(cast(ColumnElement[bool],UserGame.rating >= filters.min_rating))
+
+    if filters.genre_ids:
+        query = query.join(UserGame.genres).where(Genre.id.in_(filters.genre_ids)).distinct()
+
+    result = await session.execute(query)
+    user_games = result.scalars().unique().all()
+    return user_games

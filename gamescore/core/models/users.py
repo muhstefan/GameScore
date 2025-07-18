@@ -97,3 +97,12 @@ class UserGame(BaseModel, table=True):
 class UserGameUpdate(BaseModel):
     status: Optional[GameStatus] = None
     rating: Optional[int] = None
+
+class UserGameFilter(BaseModel):
+    status: Optional[str] = None
+    min_rating: Optional[int] = None    # Используем min_rating для фильтрации рейтинга
+    genre_ids: Optional[list[int]] = None  # Используется в запросе
+
+    model_config = {
+        "from_attributes": True
+    }
