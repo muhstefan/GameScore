@@ -3,7 +3,6 @@ from starlette.responses import RedirectResponse
 from gamescore.api_v1.auth.config import Production
 from gamescore.api_v1.auth.dependencies import get_user_soft
 from gamescore.templates import templates
-from fastapi import Response
 from fastapi import APIRouter, Request, Depends
 
 router = APIRouter()

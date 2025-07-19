@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, Depends
-from gamescore.core.models.users import UserCreateDB, UserUpdate, User, UserPublic, UserGameUpdate, UserGame
+from gamescore.core.models.users import UserCreateDB, UserUpdate, User, UserAccountInfo, UserGameUpdate, UserGame
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
 from .views_user_games import router as user_games_router
@@ -19,7 +19,7 @@ async def create_user(
     return user
 
 
-@router.get("/{user_id}/", response_model=UserPublic)
+@router.get("/{user_id}/", response_model=UserAccountInfo)
 async def get_user(
                 user_id: int,
                 current_user: User = Depends(get_user_strict), # Проверка, что пользователь login in

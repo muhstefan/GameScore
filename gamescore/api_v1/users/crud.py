@@ -1,8 +1,8 @@
-from typing import cast
+from typing import cast, Optional
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
-from gamescore.core.models import User
+from gamescore.core.models import User, Game
 from sqlalchemy.engine import Result
 from sqlalchemy import select, ColumnElement
 from gamescore.core.models.users import UserCreateDB, UserGame, UserGameGenre, GameStatus, UserGameUpdate, \
@@ -59,6 +59,14 @@ async def add_game_to_user(session: AsyncSession,
             status_code=409, detail="Игра уже добавлена к пользователю"
         )
 
+async def remove_game_from_user(session: AsyncSession, user_id: int, game_id: int):
+
+    user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
+    if not user_game:
+        raise HTTPException(status_code=404, detail="Игра не найдена у пользователя")
+    await session.delete(user_game)
+    await session.commit()
+
 async def create_genre_for_user(session: AsyncSession,
                                 user_id: int,
                                 genre_name: str) -> Genre:
@@ -106,31 +114,35 @@ async def update_user_game(
         user_game_update: UserGameUpdate,
         partial: bool = True,
 ) -> UserGame:
-    # 1. Найти объект UserGame по ключам
+
     user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
     if not user_game:
         raise HTTPException(status_code=404, detail="Запись UserGame не найдена")
 
-    # 2. Получить словарь обновления из Pydantic-модели
     update_data = user_game_update.model_dump(exclude_unset=partial)  # Для Pydantic v2
 
-    # 3. Обновить поля у модели SQLAlchemy
     for field, value in update_data.items():
         setattr(user_game, field, value)
 
-    # 4. Сохранить изменения
     session.add(user_game)
     await session.commit()
     await session.refresh(user_game)
     return user_game
 
 
-async def get_user_games(
-    session: AsyncSession,
+def select_user_games_filters_query(
     user_id: int,
-    filters: UserGameFilter
-) -> list[UserGame]:
-    query = select(UserGame).where(cast(ColumnElement[bool], UserGame.user_id == user_id))
+    filters: Optional[UserGameFilter] = None  # делаем filters опциональным
+):
+    query = (
+        select(Game)
+        .join(UserGame, Game.id == UserGame.game_id)
+        .where(UserGame.user_id == user_id)
+    )
+
+    if not filters:
+        # Если фильтров нет, возвращаем базовый запрос
+        return query
 
     if filters.status:
         query = query.where(cast(ColumnElement[bool],UserGame.status == filters.status))
@@ -141,6 +153,11 @@ async def get_user_games(
     if filters.genre_ids:
         query = query.join(UserGame.genres).where(Genre.id.in_(filters.genre_ids)).distinct()
 
-    result = await session.execute(query)
+    return query
+
+async def get_user_games_ids(session: AsyncSession, user_id: int) -> set[int]:
+    user_games_query = select(UserGame).where(cast(ColumnElement[bool], UserGame.user_id == user_id))
+    result = await session.execute(user_games_query)
     user_games = result.scalars().unique().all()
-    return user_games
+    return {game.game_id for game in user_games}
+

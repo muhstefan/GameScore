@@ -1,7 +1,12 @@
 from typing import Optional
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 from pydantic import ConfigDict
 from gamescore.core.models.base import BaseModel
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from gamescore.core.models.users import UserGame  # импорт только для подсказок типов
 
 
 class GameBase(BaseModel):
@@ -18,7 +23,7 @@ class Game(BaseModel, table=True):
     image: Optional[str] = None
 
     # обратная связь с UserGame т.е по ИГРЕ найти пользователей у которых она добавлена
-    # user_games: list["UserGame"] = Relationship(back_populates="game")
+    user_games: list["UserGame"] = Relationship(back_populates="game")
 
 class GameCreate(GameBase):
     pass

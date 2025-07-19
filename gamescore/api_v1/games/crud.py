@@ -1,14 +1,22 @@
+from fastapi.encoders import jsonable_encoder
+
+from gamescore.api_v1.users.crud import get_user_games_ids
 from gamescore.core.models import Game
 from gamescore.core.models.games import GameCreate,GameUpdate
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
-from sqlalchemy import select, func
+from sqlalchemy import select, func, Select
 from sqlalchemy.orm import selectinload
 
-async def count_games(session: AsyncSession) -> int:
-    result = await session.execute(select(func.count()).select_from(Game))
-    total = result.scalar_one()
-    return total
+GAMES_PER_PAGE = 40
+
+async def count_query(session: AsyncSession, base_query: Select) -> int:
+    count_query_ = (
+        select(func.count())
+        .select_from(base_query.subquery())
+    )
+    result = await session.execute(count_query_)
+    return result.scalar_one()
 
 
 async def create_games(session: AsyncSession, games_in: list[GameCreate]) -> list[Game]:
@@ -24,10 +32,32 @@ async def get_games(session : AsyncSession) -> list[Game]:
     games = result.scalars().all()  # scalars аналог **
     return list(games)
 
-async def get_games_pagination(session: AsyncSession, limit: int, offset: int) -> list[Game]:
-    query = select(Game).order_by(Game.name).limit(limit).offset(offset)
+def select_games_pagination():
+    return select(Game).order_by(Game.name)
+
+async def get_games_pagination(session: AsyncSession,
+                               query: Select,
+                               page: int,
+                               user_id: int | None = None) -> [list[Game], int]:
+
+    total_games = await count_query(session,query)
+    total_pages = (total_games + GAMES_PER_PAGE - 1) // GAMES_PER_PAGE
+    offset = (page - 1) * GAMES_PER_PAGE
+    query = query.limit(GAMES_PER_PAGE).offset(offset)
+
     result = await session.execute(query)
-    return list(result.scalars().all())
+    games = result.scalars().all()
+    games_dicts = jsonable_encoder(games)
+    user_game_ids = set()
+    if user_id:
+        # Получаем ID игр, которые пользователь добавил
+        user_game_ids = await get_user_games_ids(session, user_id)
+
+    # Помечаем каждую игру, есть ли она у пользователя
+    for game in games_dicts:
+        game['in_library'] = game['id'] in user_game_ids
+
+    return games_dicts, total_pages
 
 async def get_game(session: AsyncSession,game_id: int)-> Game | None:
     return await session.get(Game, game_id)
@@ -37,10 +67,9 @@ async def create_game(session: AsyncSession, game_in: GameCreate):
     game = Game(**game_in.model_dump())
     session.add(game)
     await session.commit()
-    # await session.refresh(game)
     return game
 
-async def update_game(session: AsyncSession,  #может полностью и частично обновлять объект
+async def update_game(session: AsyncSession,  # может полностью и частично обновлять объект
                          game_id: int,  # объект игры, которую нужно обновить
                          game_update: GameUpdate, # данные обновления игры
                          partial : bool = False

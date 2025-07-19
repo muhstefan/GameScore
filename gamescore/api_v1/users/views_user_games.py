@@ -3,21 +3,31 @@ from fastapi import APIRouter, status, Depends, Query
 from gamescore.core.models.users import UserGameUpdate, UserGame, UserGameFilter
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
-from .crud import update_user_game, get_user_games
+from .crud import update_user_game, select_user_games_filters_query
 
 from gamescore.core.db import get_db
+from ..auth.dependencies import get_user_id
 
 router = APIRouter(tags=["User_Games"])
 
 @router.post("/me/games/{game_id}/", status_code=status.HTTP_204_NO_CONTENT)
 async def add_game_to_current_user(
-    user_id: int,
     game_id: int,
+    user_id: int = Depends(get_user_id),
     session : AsyncSession = Depends(get_db)
 ):
     await crud.add_game_to_user(session=session, user_id=user_id, game_id=game_id)
 
     return {"message": "Game added to user successfully."}
+
+@router.delete("/me/games/{game_id}/", status_code=status.HTTP_204_NO_CONTENT)
+async def remove_game_from_current_user(
+    game_id: int,
+    user_id: int = Depends(get_user_id),
+    session: AsyncSession = Depends(get_db)
+):
+    await crud.remove_game_from_user(session=session, user_id=user_id, game_id=game_id)
+    return
 
 @router.post("me/genres/{genre_name}/", status_code=status.HTTP_201_CREATED)
 async def create_genre_for_current_user(
@@ -58,12 +68,11 @@ async def update_user_game_view(
     )
     return updated_user_game
 
-@router.get("/users/{user_id}/games")
-async def read_user_games(
-    user_id: int,
-    filters: Annotated[UserGameFilter, Query()],
-    session: AsyncSession = Depends(get_db)
-):
-
-    user_games = await get_user_games(session=session, user_id=user_id, filters=filters)
-    return user_games
+# @router.get("/users/{user_id}/games")
+# async def read_user_games(
+#     user_id: int,
+#     filters: Annotated[UserGameFilter, Query()],
+# ):
+#
+#     user_games = await select_user_games_filters_query(user_id=user_id, filters=filters)
+#     return user_games

@@ -32,8 +32,15 @@ class UserUpdate(BaseModel):
     email: Optional[str] = Field(default=None, max_length=25)
     password: Optional[str] = Field(default=None, max_length=25, min_length=8)
 
-class UserPublic(UserBase):
+class UserAccountInfo(UserBase):
     id: int
+    model_config = ConfigDict(from_attributes=True)
+
+class UserPublic(BaseModel):
+    id: int
+    username: str
+    role: str
+
     model_config = ConfigDict(from_attributes=True)
 
 # ТАБЛИЦЫ СВЯЗЕЙ
@@ -79,6 +86,7 @@ class UserGame(BaseModel, table=True):
     rating: Optional[int] = Field(default=None, ge=1, le=10)
 
     user: "User" = Relationship(back_populates="user_games")
+    game: "Game" = Relationship(back_populates="user_games")
 
     genres: list["Genre"] = Relationship(
         back_populates="user_games",
