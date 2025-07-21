@@ -5,12 +5,16 @@
 {% block content %}
 <div class="container">
     <h1>Добро пожаловать</h1>
-    <button id="games-list-btn" type="button">Список игр</button>
+    <button id="games-list-btn" type="button">Каталог игр</button>
+    <button id="mygames-list-btn" type="button">Моя подборка игр</button>
 </div>
 
 <script>
     document.getElementById('games-list-btn').addEventListener('click', function() {
         window.location.href = '/pages/games/';
+    });
+    document.getElementById('mygames-list-btn').addEventListener('click', function() {
+        window.location.href = '/pages/me/games/';
     });
 </script>
 {% endblock %}

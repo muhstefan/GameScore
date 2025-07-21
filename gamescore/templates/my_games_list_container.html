@@ -1,7 +1,8 @@
 <div class="container" id="game_list_container">
+
     <div class="games-grid">
         {% for game in games %}
-        <div class="game-tile" id="container_{{ game.id }}">
+        <div class="game-tile" data-id="{{ game.id }}" id="container_{{ game.id }}">
             {% if game.image %}
             <img src="{{ game.image }}" class="game-image" alt="{{ game.name }}">
             {% else %}
@@ -15,16 +16,10 @@
                 <div class="game-rating">{{ game.rating }}</div>
                 {% endif %}
 
-               <div class="game-actions">
-                  {% if game.in_library %}
-                    <button data-action="remove_game" data-id="{{ game.id }}" type="button">
-                      <i class="remove-icon"></i> Убрать
+                <div class="game-actions">
+                    <button data-action="edit" data-id="{{ game.id }}" type="button">
+                        Ред.
                     </button>
-                  {% else %}
-                    <button data-action="add_game" data-id="{{ game.id }}" type="button">
-                      Добавить
-                    </button>
-                  {% endif %}
                 </div>
             </div>
         </div>

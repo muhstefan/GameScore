@@ -1,111 +1,85 @@
-const containers = document.querySelectorAll('.game-container');
-const modal = document.getElementById('myModal');
-const add_game_btn = document.getElementById('add_game');
-const save_game = document.getElementById('save_game');
-const form = document.getElementById('gameForm');
-const formData = new FormData(form);
 const gamesListContainer = document.getElementById('games_list_container');
+
+// Допустим, глобальная переменная с id пользователя
+const UserId = window.currentUserId;
+
 import { BASE_URL } from './config.js';
 
-
 class ApiProcessor {
+    constructor() {
+    this.currentPage = 1; // текущая страница по умолчанию
+  }
+
+  async refreshGameList(page = 1) {
+    try {
+      const response = await fetch(`/pages/games/list/?page=${page}`);
+      const html = await response.text();
+      gamesListContainer.innerHTML = html;
+      this.EventProcessor?.attachPaginationHandlers();
+      this.currentPage = page; // запоминаем текущую страницу
+    } catch (error) {
+      console.error('Error refreshing game list:', error);
+    }
+  }
+
+  async add_game_to_user(game_id) {
+    try {
+      const response = await fetch(`${BASE_URL}/api/v1/users/me/games/${game_id}/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+        // без body
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Failed to add game: ${response.status} ${errorText}`);
+      }
+
+      console.log(`Game ${game_id} added to user`);
+
+      // После успешного добавления обновляем список игр,
+      // чтобы перерисовать кнопки
+
+      await this.refreshGameList(this.currentPage);
+      console.log(this.currentPage);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async remove_game_from_user(game_id) {
+  try {
+    const response = await fetch(`${BASE_URL}/api/v1/users/me/games/${game_id}/`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to remove game: ${response.status} ${errorText}`);
+    }
+
+    await this.refreshGameList(this.currentPage);
+    console.log(this.currentPage);
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 
   setEventProcessor(eventProcessor) {
     this.EventProcessor = eventProcessor;
   }
-
-    refreshGameList(page = 1) {
-      fetch(`/pages/games/list/?page=${page}`)
-        .then(response => response.text())
-        .then(html => {
-          document.getElementById('games_list_container').innerHTML = html;
-          this.EventProcessor.attachPaginationHandlers(); // Навесить обработчики на новые кнопки пагинации
-        })
-        .catch(console.error);
-    }
-
-  delete_game(id) {
-    fetch(`${BASE_URL}/api/v1/games/${id}/`, {
-      method: 'DELETE'
-    })
-    .then(() => {  // Ждем завершения
-      this.refreshGameList();
-    });
-  }
-
-  async create_game() {
-    const data = this.get_input_data();
-    const response = await fetch(`${BASE_URL}/api/v1/games/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  }
-
-  async update_game(id) {
-    const data = this.get_input_data();
-    const response = await fetch(`${BASE_URL}/api/v1/games/${id}/`, {
-      method: 'PUT', // или PATCH
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-  }
-
-  edit_game(id) {
-    form.dataset.editingId = id;
-    fetch(`${BASE_URL}/api/v1/games/${id}/`)
-      .then(response => response.json())
-      .then(game => {
-        // Заполняем форму
-        form.elements['title'].value = game.name;
-        form.elements['description'].value = game.description;
-        form.elements['rating'].value = game.rating;
-
-        this.EventProcessor.openModal();
-      });
-  }
-
-
-  get_input_data() {
-    const formData = new FormData(form); // создаём здесь, чтобы получить актуальные данные
-
-    const data = {
-      name: formData.get('title').trim(),
-      description: formData.get('description').trim(),
-      rating: parseFloat(formData.get('rating'))
-    };
-    return data;
-  }
 }
-
-
-class BusinessLogic {
-
-  constructor(apiProcessor) {
-    this.apiProcessor = apiProcessor;
-
-    // Назначаем обработчик на кнопку save_game
-    save_game.addEventListener('click', async (event) => {
-      event.preventDefault(); // Отменяем стандартное поведение кнопки submit
-      const id = form.dataset.editingId; // Проверяем, есть ли id редактируемой игры
-      if (id) {
-        await this.apiProcessor.update_game(id);
-      } else {
-        await this.apiProcessor.create_game();
-      }
-      form.reset();  //Очистка полей
-      delete form.dataset.editingId; // Сброс editingId
-      await this.apiProcessor.refreshGameList();
-      modal.style.display = 'none';
-    });
-  }
-}
-
 
 class EventProcessor {
-  constructor(apiProcessor, businessLogic) {
+  constructor(apiProcessor) {
     this.apiProcessor = apiProcessor;
-    this.businessLogic = businessLogic;
 
     gamesListContainer.addEventListener('click', (event) => {
       const btn = event.target.closest('button');
@@ -114,17 +88,12 @@ class EventProcessor {
       const id = btn.dataset.id;
       const action = btn.dataset.action;
 
-      if (!id || !action) return;
-
-      if (action === 'delete') {
-        this.apiProcessor.delete_game(id);
-      } else if (action === 'edit') {
-        this.apiProcessor.edit_game(id);
+      if (action === 'add_game' && id) {
+        this.apiProcessor.add_game_to_user(id);
+      } else if (action === 'remove_game' && id) {
+        this.apiProcessor.remove_game_from_user(id);
       }
     });
-
-    add_game_btn.onclick = this.openModal.bind(this);
-    modal.onclick = this.closeModal.bind(this);
   }
 
   attachPaginationHandlers() {
@@ -139,26 +108,10 @@ class EventProcessor {
       };
     });
   }
-
-  openModal() {
-    modal.style.display = 'block';
-  }
-
-  closeModal(event) {
-    if (event.target === modal) {
-      form.reset();
-      delete form.dataset.editingId;
-      modal.style.display = 'none';
-    }
-  }
 }
 
-
-
-// --- Инициализация ---
-
+// Инициализация
 const apiProcessor = new ApiProcessor();
-const businessLogic = new BusinessLogic(apiProcessor);
-const eventProcessor = new EventProcessor(apiProcessor, businessLogic);
+const eventProcessor = new EventProcessor(apiProcessor);
 apiProcessor.setEventProcessor(eventProcessor);
 apiProcessor.refreshGameList();

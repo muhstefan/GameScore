@@ -18,8 +18,14 @@ async def get_users(session : AsyncSession) -> list[User]:
     users = result.scalars().all()  # scalars аналог **
     return list(users)
 
-async def get_user(session: AsyncSession,user_id: int)-> User | None:
-    return await session.get(User, user_id)
+async def get_user(session: AsyncSession, user_id: int) -> User | None:
+    return await session.get(
+        User, user_id,
+        options=[
+            selectinload(User.genres),
+            selectinload(User.user_games).selectinload(UserGame.game)
+        ]
+    )
 
 async def create_user(session: AsyncSession, user_data: UserCreateDB):
     user = User(**user_data.model_dump())
@@ -161,3 +167,18 @@ async def get_user_games_ids(session: AsyncSession, user_id: int) -> set[int]:
     user_games = result.scalars().unique().all()
     return {game.game_id for game in user_games}
 
+async def get_user_genres_names(session: AsyncSession, user_id: int):
+    user = await get_user(session=session,user_id=user_id)
+    return {genre.name for genre in user.genres}
+
+
+async def get_user_game(session: AsyncSession, user_id: int, game_id: int):
+    result = await session.execute(
+        select(UserGame)
+        .options(selectinload(UserGame.game))  # <-- ВАЖНО!
+        .where(
+            UserGame.user_id == user_id,
+            UserGame.game_id == game_id
+        )
+    )
+    return result.scalar_one_or_none()

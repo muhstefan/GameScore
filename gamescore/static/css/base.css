@@ -325,6 +325,7 @@ a:focus {
     gap: 10px;
 }
 
+
 .game-tile:hover {
     transform: scale(1.05);
     z-index: 10;

@@ -17,12 +17,13 @@
                 <a href="/" class="logo">GameScore</a>
                 <nav class="nav-links">
                 {% if user %}
-                    <a href="/pages/me">{{ user.username }}</a>
+                    <a href="/pages/me/">{{ user.username }}</a>
                 {% else %}
-                    <a href="/pages/login">Вход</a>
+                    <a href="/pages/login/">Вход</a>
                 {% endif %}
-                <a href="/pages/games">Каталог игр</a>
-                <a href="/pages/contact">Регистрация</a>
+                <a href="/pages/games/">Каталог игр</a>
+                <a href="/pages/me/games/">Моя коллекция</a>
+                <a href="/pages/contact/">Регистрация</a>
                 </nav>
             </div>
         </header>
@@ -41,8 +42,13 @@
         {% endblock %}
     </footer>
 
-    {% block scripts %}{% endblock %}
-
+{% block global_scripts %}
+<script>
+    window.currentUserId = {{ (user.id if user else None) | tojson | safe }};
+    window.currentUserName = {{ (user.username if user else None) | tojson | safe }};
+</script>
+{% endblock %}
+{% block scripts %}{% endblock %}
 
 </body>
 </html>

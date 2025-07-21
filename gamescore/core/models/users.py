@@ -84,6 +84,8 @@ class UserGame(BaseModel, table=True):
 
     status: GameStatus = Field(default=GameStatus.wait)
     rating: Optional[int] = Field(default=None, ge=1, le=10)
+    review: GameStatus = Field(default=GameStatus.wait)
+    rating: Optional[int] = Field(default=None, ge=1, le=10)
 
     user: "User" = Relationship(back_populates="user_games")
     game: "Game" = Relationship(back_populates="user_games")

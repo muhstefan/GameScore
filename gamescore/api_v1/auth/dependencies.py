@@ -18,8 +18,10 @@ async def get_user_soft(
     return user_public
 
 
-async def get_user_id(user=Depends(get_user_soft)) -> int:
-    return user.id
+async def get_user_id(user=Depends(get_user_soft)) -> int | None:
+    if user:
+        return user.id
+    return None
 
 
 async def get_user_strict(

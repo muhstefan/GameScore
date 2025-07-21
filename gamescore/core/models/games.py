@@ -2,11 +2,7 @@ from typing import Optional
 from sqlmodel import Field, Relationship
 from pydantic import ConfigDict
 from gamescore.core.models.base import BaseModel
-
-from typing import TYPE_CHECKING
-
-if TYPE_CHECKING:
-    from gamescore.core.models.users import UserGame  # импорт только для подсказок типов
+from gamescore.core.models.users import UserGame, GameStatus
 
 
 class GameBase(BaseModel):
@@ -28,13 +24,22 @@ class Game(BaseModel, table=True):
 class GameCreate(GameBase):
     pass
 
+class GameRead(BaseModel):
+    id: int
+    name: str
+    description: Optional[str]
+    model_config = ConfigDict(from_attributes=True)
+
+class UserGameRead(BaseModel):
+    id: int
+    status: GameStatus
+    rating: Optional[int]
+    game: GameRead
+    model_config = ConfigDict(from_attributes=True)
+
 
 class GameUpdate(BaseModel):
     name: Optional[str] = None  #Значения по умолчанию None - обнулит поле например при полном обновлении
     description: Optional[str] = None
     rating: Optional[int] = None
     image: Optional[str] = None
-
-class GameRead(GameBase):
-    id: int
-    model_config = ConfigDict(from_attributes=True)
