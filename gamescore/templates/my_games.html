@@ -3,15 +3,79 @@
 {% block title %}Игры{% endblock %}
 
 {% block additional_content %}
- <h1>МОЯ КОЛЛЕКЦИЯ</h1>
+ <button class="navigation-button">Мои жанры</button>
 {% endblock %}
 
 {% block catalog_content %}
-    <div id="games_list_container">
-        <!-- Список игр появится тут через AJAX -->
+<div id="games_list_container">
+    <!-- Список игр появится тут через AJAX -->
+</div>
+
+    <!-- Модальное окно (Редактирование) -->
+<div id="myModal" class="modal">
+  <div class="modal-content">
+    <h2>Редактировать игру</h2>
+
+    <form id="gameForm">
+      <div class="form-group">
+        <label for="genres_select">Жанры</label>
+      <select id="genres_select" multiple required>
+      <!-- опции будут подгружаться -->
+      </select>
+      </div>
+
+      <div class="form-group">
+        <label for="review_input">Ревью</label>
+        <textarea id="review_input" name="review" placeholder="Напишите ваш отзыв" rows="4"></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="rating_input">Оценка</label>
+        <input type="number" id="rating_input" name="rating" min="0" max="10" step="0.1" placeholder="0 - 10" required>
+      </div>
+
+      <div class="form-group">
+        <label>Статус</label>
+        <div>
+          <label><input type="radio" name="status" value="completed" required> Пройдено</label>
+          <label><input type="radio" name="status" value="pending"> В ожидании</label>
+        </div>
+      </div>
+      <button data-action="remove_game" type="button">Убрать</button>
+      <button type="submit" id="save_game">Сохранить</button>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Модальное окно для просмотра информации об игре -->
+<div id="gameInfoModal" class="modal">
+  <div class="modal-content">
+    <span class="close-info-modal" style="float:right; cursor:pointer;">&times;</span>
+    <h2 id="info_game_title">Информация об игре</h2>
+    <div class="info-group">
+      <strong>Жанры:</strong>
+      <span id="info_game_genres"></span>
     </div>
-{% block scripts %}
-<script src="{{ url_for('static', path='js/myGamesPage.js') }}" type="module" defer></script>
+    <div class="info-group">
+      <strong>Ревью:</strong>
+      <span id="info_game_review"></span>
+    </div>
+    <div class="info-group">
+      <strong>Оценка:</strong>
+      <span id="info_game_rating"></span>
+    </div>
+    <div class="info-group">
+      <strong>Статус:</strong>
+      <span id="info_game_status"></span>
+    </div>
+  </div>
+</div>
+
+
 {% endblock %}
 
+{% block scripts %}
+<script src="{{ url_for('static', path='js/myGamesPage.js') }}" type="module" defer></script>
 {% endblock %}

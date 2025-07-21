@@ -28,6 +28,13 @@ footer {
   color: #555;
 }
 
+.row-positional {
+  display: flex;
+  flex-direction: row; /* по горизонтали */
+  gap: 20px;           /* отступы между контейнерами */
+  align-items: flex-start; /* выравнивание по верхнему краю */
+}
+
 /* Мейн контейнер */
 /* Контейнер с отступами и центровкой */
 .container {
@@ -47,11 +54,24 @@ footer {
   box-sizing: border-box;
 }
 
+.navigation-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;          /* высота на весь экран по вертикали */
+  background-color: #fff; /* фон панели, например белый */
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  border-right: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
 /* Элементы */
 /* Кнопки — скруглённые с плавным эффектом при наведении */
 button {
   display: block;      /* чтобы margin: auto работал */
   margin: 0 auto;      /* центрирует кнопку по горизонтали */
+  margin-top: 10px;    /* отступ сверху */
   background: linear-gradient(135deg, #547bb8, #2e5a8a);
   border: none;
   border-radius: 12px;
@@ -62,7 +82,7 @@ button {
   cursor: pointer;
   transition: background 0.3s ease, box-shadow 0.3s ease;
   user-select: none;
-  box-shadow: 0 4px 8px rgba(108, 160, 220, 0.4);
+  box-shadow: 0 4px px rgba(108, 160, 220, 0.4);
 }
 
 /* наведение мышкой и клавиатурой */
@@ -72,12 +92,25 @@ button:hover{
   outline: none;
 }
 
+.navigation-button {
+  background:#e91e63; /* сплошной цвет, например тот же синий */
+  border-radius: 0;      /* убираем скругление */
+
+}
+
+.navigation-button:hover {
+  background-color: #7faadc; /* чуть светлее при наведении */
+  box-shadow: 0 6px 12px rgba(63, 122, 191, 0.6);
+}
+
 
 /* Инпуты — минималистичные с лёгкой тенью */
+
 .form-group {
   display: flex;
   align-items: center;       /* Вертикальное выравнивание по центру */
   margin-bottom: 1rem;
+  width: 90%;
 }
 
 .form-group label {
@@ -91,6 +124,16 @@ button:hover{
 .form-group input,
 .form-group textarea {
   flex: 1;                   /* Занимают оставшееся пространство */
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s ease;
+}
+
+.form-group select {
+  flex: 1; /* занимает оставшееся пространство */
   padding: 0.5rem 0.75rem;
   border: 1px solid #ccc;
   border-radius: 8px;

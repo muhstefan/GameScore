@@ -8,8 +8,6 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from sqlmodel import SQLModel
 from pathlib import Path
-
-
 from fastapi.staticfiles import StaticFiles
 import uvicorn
 
