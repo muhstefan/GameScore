@@ -1,5 +1,5 @@
-from fastapi import APIRouter, HTTPException,status, Depends
-from gamescore.core.models.games import Game , GameCreate
+from fastapi import APIRouter, Depends
+from gamescore.core.models.games import Game
 from . import crud
 from sqlalchemy.ext.asyncio import AsyncSession
 from . dependencies import game_by_id

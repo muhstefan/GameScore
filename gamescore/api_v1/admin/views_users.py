@@ -1,6 +1,6 @@
 from gamescore.core.models import User
 from gamescore.api_v1.users.dependencies import prepare_user_update
-from gamescore.core.models.users import UserUpdate
+from gamescore.core.entities.users import UserUpdate
 from gamescore.api_v1.users import crud as crud_users
 from fastapi import APIRouter, Depends,status
 from sqlalchemy.ext.asyncio import AsyncSession

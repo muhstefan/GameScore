@@ -1,4 +1,4 @@
-from gamescore.core.models.games import GameCreate
+from gamescore.core.entities.games import GameCreate
 
 
 

@@ -1,13 +1,12 @@
-from typing import Annotated
-from fastapi import APIRouter, status, Depends, Query, HTTPException
-from gamescore.core.models.users import UserGameUpdate, UserGame, UserGameFilter
+from fastapi import APIRouter, status, Depends, HTTPException
+from gamescore.core.models.users import UserGame
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
-from .crud import update_user_game, select_user_games_filters_query, get_user_genres_names, get_user_game
+from .crud import update_user_game, get_user_genres, get_user_game
 
 from gamescore.core.db import get_db
 from ..auth.dependencies import get_user_id
-from ...core.models.games import UserGameRead
+from gamescore.core.entities.users import UserGameUpdate, UserGameRead
 
 router = APIRouter(tags=["User_Games"])
 
@@ -39,13 +38,13 @@ async def create_genre_for_current_user(
     genre = await crud.create_genre_for_user(session=session, user_id=user_id, genre_name=genre_name)
     return {"message": "create genre for user successfully."}
 
-@router.get("/me/genres/names/", response_model=list[str])
-async def get_genres_names_for_current_user(
+@router.get("/me/genres/names/")
+async def get_genres_for_current_user(
     user_id: int = Depends(get_user_id),
     session: AsyncSession = Depends(get_db)
 ):
-    names = await get_user_genres_names(session=session, user_id=user_id)
-    return list(names)
+    genres = await get_user_genres(session=session, user_id=user_id)
+    return genres
 
 
 @router.post("/me/games/{game_id}/genres/{genre_name}/", status_code=status.HTTP_204_NO_CONTENT)
@@ -60,8 +59,8 @@ async def add_genre_to_current_user_game(
     return {"message": "add genre to game for user successfully."}
 
 
-@router.put("/me/{user_id}/games/{game_id}/", response_model=UserGame)
-async def update_current_user_game_view(
+@router.put("/me/games/{game_id}/", response_model=UserGame)
+async def update_game_for_current_user(
 
     game_id: int,
     user_game_update: UserGameUpdate,

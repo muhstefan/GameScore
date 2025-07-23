@@ -1,9 +1,7 @@
-from typing import Annotated
-from fastapi import Path, Depends, HTTPException, status
+from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from gamescore.core.models import db_helper, User
-from gamescore.core.models.users import UserCreate, UserUpdate, UserCreateDB
-from . import crud
+from gamescore.core.entities.users import UserCreate, UserUpdate, UserCreateDB
 from passlib.context import CryptContext
 from sqlalchemy import select
 

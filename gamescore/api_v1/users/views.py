@@ -1,11 +1,11 @@
 from fastapi import APIRouter, status, Depends
-from gamescore.core.models.users import UserCreateDB, UserUpdate, User, UserAccountInfo, UserGameUpdate, UserGame
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
-from .views_user_games import router as user_games_router
 from .dependencies import prepare_user_create, prepare_user_update
 from gamescore.core.db import get_db
 from gamescore.api_v1.auth import get_user_strict
+from gamescore.core.models import User
+from gamescore.core.entities.users import UserCreateDB, UserAccountInfo, UserUpdate
 
 router = APIRouter(tags=["Users"])
 

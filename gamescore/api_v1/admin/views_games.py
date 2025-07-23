@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends,status
 from gamescore.core.db import get_db
-from gamescore.core.models.games import GameCreate, Game, GameUpdate
+from gamescore.core.models.games import  Game
+from gamescore.core.entities.games import  GameUpdate, GameCreate
 from sqlalchemy.ext.asyncio import AsyncSession
 from gamescore.api_v1.games import crud as crud_games
 

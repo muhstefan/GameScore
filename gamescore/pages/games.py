@@ -6,7 +6,7 @@ from gamescore.api_v1.users.crud import select_user_games_filters_query
 from gamescore.core.models import db_helper
 from fastapi import APIRouter, Request, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.core.models.users import  UserGameFilter
+from gamescore.core.entities.users import  UserGameFilter
 from gamescore.templates import templates
 from fastapi import Query
 from sqlalchemy.orm import selectinload

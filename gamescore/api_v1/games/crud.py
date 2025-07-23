@@ -1,8 +1,8 @@
 from fastapi.encoders import jsonable_encoder
 
 from gamescore.api_v1.users.crud import get_user_games_ids
+from gamescore.core.entities.games import GameCreate, GameUpdate
 from gamescore.core.models import Game
-from gamescore.core.models.games import GameCreate,GameUpdate
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
 from sqlalchemy.engine import Result
 from sqlalchemy import select, func, Select

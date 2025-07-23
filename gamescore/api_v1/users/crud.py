@@ -2,11 +2,12 @@ from typing import cast, Optional
 
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession # это сессия для работы с бд
+
+from gamescore.core.entities.users import UserCreateDB, UserGameUpdate, UserGameFilter
 from gamescore.core.models import User, Game
 from sqlalchemy.engine import Result
-from sqlalchemy import select, ColumnElement
-from gamescore.core.models.users import UserCreateDB, UserGame, UserGameGenre, GameStatus, UserGameUpdate, \
-    UserGameFilter
+from sqlalchemy import select, ColumnElement, delete
+from gamescore.core.models.users import  UserGame, UserGameGenre, GameStatus
 from gamescore.core.models.genres import Genre
 from fastapi import HTTPException
 from gamescore.core.db import get_one_by_fields
@@ -26,6 +27,23 @@ async def get_user(session: AsyncSession, user_id: int) -> User | None:
             selectinload(User.user_games).selectinload(UserGame.game)
         ]
     )
+
+async def get_user_game(
+    session: AsyncSession,
+    user_id: int,
+    game_id: int
+) -> UserGame | None:
+    result = await session.execute(
+        select(UserGame)
+        .where(UserGame.user_id == user_id, UserGame.game_id == game_id)
+        .options(
+            selectinload(UserGame.game),
+            selectinload(UserGame.user),
+            selectinload(UserGame.user_game_genres).selectinload(UserGameGenre.genre),
+            selectinload(UserGame.genres)
+        )
+    )
+    return result.scalar_one_or_none()
 
 async def create_user(session: AsyncSession, user_data: UserCreateDB):
     user = User(**user_data.model_dump())
@@ -93,7 +111,12 @@ async def add_genre_to_game_for_user(
     genre_id: int
 ):
     # 1. Найти UserGame
-    user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
+    user_game = await get_one_by_fields(
+        session,
+        UserGame,
+        {"user_id": user_id, "game_id": game_id},
+        eager_load=[selectinload(UserGame.genres)]
+    )
     if not user_game:
         raise HTTPException(status_code=404, detail="Игры пользователя не найдены")
 
@@ -114,18 +137,30 @@ async def add_genre_to_game_for_user(
 
 
 async def update_user_game(
-        session: AsyncSession,
-        user_id: int,
-        game_id: int,
-        user_game_update: UserGameUpdate,
-        partial: bool = True,
+    session: AsyncSession,
+    user_id: int,
+    game_id: int,
+    user_game_update: UserGameUpdate,
+    partial: bool = True,
 ) -> UserGame:
-
-    user_game = await get_one_by_fields(session, UserGame, {"user_id": user_id, "game_id": game_id})
+    user_game = await get_user_game(session, user_id, game_id)
     if not user_game:
-        raise HTTPException(status_code=404, detail="Запись UserGame не найдена")
+        raise HTTPException(status_code=404, detail="UserGame не найдена")
 
-    update_data = user_game_update.model_dump(exclude_unset=partial)  # Для Pydantic v2
+    update_data = user_game_update.model_dump(exclude_unset=partial)
+
+    genre_ids = update_data.pop("genre_ids", None)
+    if genre_ids is not None:
+        # Удаляем старые связи
+        await session.execute(
+            delete(UserGameGenre).where(UserGameGenre.user_game_id == user_game.id)
+        )
+        # Добавляем новые связи
+        new_links = [UserGameGenre(user_game_id=user_game.id, genre_id=gid) for gid in genre_ids]
+        session.add_all(new_links)
+
+        # Чтобы отразить изменения на уровне объекта
+        await session.refresh(user_game)
 
     for field, value in update_data.items():
         setattr(user_game, field, value)
@@ -134,7 +169,6 @@ async def update_user_game(
     await session.commit()
     await session.refresh(user_game)
     return user_game
-
 
 def select_user_games_filters_query(
     user_id: int,
@@ -167,18 +201,20 @@ async def get_user_games_ids(session: AsyncSession, user_id: int) -> set[int]:
     user_games = result.scalars().unique().all()
     return {game.game_id for game in user_games}
 
-async def get_user_genres_names(session: AsyncSession, user_id: int):
-    user = await get_user(session=session,user_id=user_id)
-    return {genre.name for genre in user.genres}
+async def get_user_genres(session: AsyncSession, user_id: int):
+    user = await get_user(session=session, user_id=user_id)
+    return [{"id": genre.id, "name": genre.name} for genre in user.genres]
 
-
-async def get_user_game(session: AsyncSession, user_id: int, game_id: int):
+async def get_user_game(session: AsyncSession, user_id: int, game_id: int) -> Optional[UserGame]:
     result = await session.execute(
         select(UserGame)
-        .options(selectinload(UserGame.game))  # <-- ВАЖНО!
+        .options(
+            selectinload(UserGame.game),
+            selectinload(UserGame.genres),
+        )
         .where(
             UserGame.user_id == user_id,
-            UserGame.game_id == game_id
+            UserGame.game_id == game_id,
         )
     )
     return result.scalar_one_or_none()

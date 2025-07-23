@@ -1,6 +1,5 @@
 from sqlalchemy import UniqueConstraint
-
-from gamescore.core.models.users import UserGameGenre
+from gamescore.core.models import UserGameGenre
 from gamescore.core.models.base import BaseModel
 from sqlmodel import Relationship
 from sqlmodel import Field

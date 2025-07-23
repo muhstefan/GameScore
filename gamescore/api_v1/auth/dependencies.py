@@ -2,7 +2,7 @@ from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from gamescore.core.db import get_db
 from gamescore.api_v1.users.crud import get_user
-from gamescore.core.models.users import UserPublic
+from gamescore.core.entities.users import UserPublic
 
 
 async def get_user_soft(
