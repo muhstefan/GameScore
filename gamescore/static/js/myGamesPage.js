@@ -16,6 +16,21 @@ class ApiProcessor {
     return await response.text();
   }
 
+  async updateUserGame(game_id, userGameUpdate) {
+    const response = await fetch(`${BASE_URL}/api/v1/users/me/games/${game_id}/`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userGameUpdate),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Failed to update game ${game_id}: ${response.status} ${errorText}`);
+    }
+
+    return await response.json();
+  }
+
   async addGameToUser(game_id) {
     const response = await fetch(`${BASE_URL}/api/v1/users/me/games/${game_id}/`, {
       method: 'POST',
@@ -38,15 +53,12 @@ class ApiProcessor {
     return await response.json();
   }
 
-    async fetchUserGameDetails(game_id) {
+  async fetchUserGameDetails(game_id) {
     const response = await fetch(`/api/v1/users/me/games/${game_id}/`);
     if (!response.ok) throw new Error('Ошибка получения информации об игре');
     return await response.json();
   }
-
 }
-
-
 
 // --------- Бизнес-логика ---------- //
 class BusinessLogic {
@@ -75,7 +87,7 @@ class BusinessLogic {
     await this.refreshGameList();
   }
 
-    async GameDetails(game_id) {
+  async GameDetails(game_id) {
     return await this.apiProcessor.fetchUserGameDetails(game_id);
   }
 
@@ -92,10 +104,10 @@ class BusinessLogic {
     const select = document.getElementById('genres_select');
     select.innerHTML = "";
     try {
-      const genreNames = await this.getGenreNames();
-      genreNames.forEach(name => {
+      const genres = await this.getGenreNames(); // [{id, name}, ...]
+      genres.forEach(({ id, name }) => {
         const opt = document.createElement('option');
-        opt.value = name;
+        opt.value = id;
         opt.textContent = name;
         select.appendChild(opt);
       });
@@ -116,6 +128,10 @@ class BusinessLogic {
       };
     });
   }
+
+  async updateUserGame(game_id, userGameUpdate) {
+    return await this.apiProcessor.updateUserGame(game_id, userGameUpdate);
+  }
 }
 
 // --------- UI/Events слой ---------- //
@@ -124,58 +140,58 @@ class EventProcessor {
     this.businessLogic = businessLogic;
 
     gamesListContainer.addEventListener('click', (event) => {
-      // Сначала проверяем, был ли клик по кнопке (любому вложенному button)
       const btn = event.target.closest('button');
       if (btn && gamesListContainer.contains(btn)) {
         const id = btn.dataset.id;
         const action = btn.dataset.action;
 
         if (action === 'edit' && id) {
-          this.editGame(id);
+          this.openEditModal(id);
         } else if (action === 'remove_game' && id) {
           this.businessLogic.removeGame(id);
         }
-        return; // если обработали кнопку, прерываем дальше
+        return;
       }
 
-      // Если клик был не по кнопке, проверяем, был ли клик по самой плитке
       const tile = event.target.closest('.game-tile');
       if (tile && gamesListContainer.contains(tile)) {
         const id = tile.dataset.id;
-        this.onGameTileClick(id, tile, event); // реализуй этот метод ниже
+        this.onGameTileClick(id, tile, event);
         return;
       }
     });
 
-    // Закрывание модального окна по клику вне формы
     modal.addEventListener('click', this.closeModal.bind(this));
     infoModal.addEventListener('click', this.closeModal.bind(this));
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const gameId = form.dataset.editingId;
+      if (!gameId) {
+        alert('Ошибка: не указан id игры для обновления');
+        return;
+      }
+      this.saveGame(gameId);
+    });
   }
 
   async onGameTileClick(game_id, tile, event) {
     try {
       const data = await this.businessLogic.GameDetails(game_id);
-      // data - UserGameRead, data.game - GameRead
 
       document.getElementById('info_game_title').textContent = data.game?.name || 'Информация об игре';
 
-      // Жанры: если genres — массив строк, иначе массив объектов с name
       let genres = [];
       if (Array.isArray(data.genres)) {
         genres = data.genres;
       } else if (Array.isArray(data.game?.genres)) {
-        // если genres вложены в game
         genres = data.game.genres.map(g => g.name || g);
       }
-      document.getElementById('info_game_genres').textContent = genres.join(', ');
+      document.getElementById('info_game_genres').textContent = genres.map(g => g.name).join(', ');
 
-      // Ревью: data.review или data.game.description
       document.getElementById('info_game_review').textContent = data.review || data.game?.description || '(нет ревью)';
-
-      // Оценка
       document.getElementById('info_game_rating').textContent = data.rating ?? '-';
 
-      // Статус
       const statusLabel = (s) => {
         if (s === 'done') return 'Пройдено';
         if (s === 'wait') return 'В ожидании';
@@ -189,38 +205,84 @@ class EventProcessor {
     }
   }
 
+  async openEditModal(id) {
+    try {
+      const data = await this.businessLogic.GameDetails(id);
 
-  async openModal() {
-    await this.businessLogic.populateGenresSelect();
-    modal.style.display = 'block';
+      form.dataset.editingId = id;
+
+      form.elements['status'].value = data.status || '';
+      form.elements['rating'].value = data.rating !== null ? data.rating : '';
+      form.elements['review'].value = data.review || '';
+
+      const genresSelect = document.getElementById('genres_select');
+      if (genresSelect) {
+        const userGenreIds = data.genre_ids || (data.genres ? data.genres.map(g => g.id) : []);
+        Array.from(genresSelect.options).forEach(opt => {
+          opt.selected = userGenreIds.includes(parseInt(opt.value));
+        });
+      }
+
+      await this.businessLogic.populateGenresSelect(); // Чтобы жанры были в селекте
+      modal.style.display = 'block';
+    } catch (error) {
+      alert('Ошибка загрузки данных для редактирования: ' + error.message);
+    }
   }
 
-closeModal(event) {
-  // Закрытие модального окна для формы
-  if (event.target === modal) {
-    form.reset();
-    delete form.dataset.editingId;
-    modal.style.display = 'none';
-    return;
+  async saveGame(id) {
+    try {
+      const status = form.elements['status']?.value || null;
+      const ratingStr = form.elements['rating']?.value;
+      const rating = ratingStr ? parseInt(ratingStr) : null;
+      const review = form.elements['review']?.value || null;
+
+      const genresSelect = document.getElementById('genres_select');
+      let genre_ids = [];
+      if (genresSelect) {
+        genre_ids = Array.from(genresSelect.selectedOptions).map(opt => parseInt(opt.value));
+      }
+
+      const userGameUpdate = {};
+
+      if (status) userGameUpdate.status = status;
+      if (!isNaN(rating)) userGameUpdate.rating = rating;
+      if (review) userGameUpdate.review = review;
+      if (genre_ids.length > 0) userGameUpdate.genre_ids = genre_ids;
+
+      if (Object.keys(userGameUpdate).length === 0) {
+        alert('Нет данных для обновления');
+        return;
+      }
+
+      await this.businessLogic.updateUserGame(id, userGameUpdate);
+
+      modal.style.display = 'none';
+      form.reset();
+      delete form.dataset.editingId;
+
+      await this.businessLogic.refreshGameList();
+
+    } catch (error) {
+      alert('Ошибка при сохранении игры: ' + (error.message || error));
+      console.error(error);
+    }
   }
 
-  // Закрытие инфо-модального окна
-  if (event.target === infoModal) {
-    infoModal.style.display = 'none';
-    return;
+  closeModal(event) {
+    if (event.target === modal) {
+      form.reset();
+      delete form.dataset.editingId;
+      modal.style.display = 'none';
+      return;
+    }
+
+    if (event.target === infoModal) {
+      infoModal.style.display = 'none';
+      return;
+    }
   }
 }
-
-  editGame(id) {
-    // Можно добавить логику заполнения формы для редактирования
-    console.log(`Game ${id} НАЖАТА РЕД.`);
-    // form.dataset.editingId = id;
-    this.openModal();
-  }
-
-}
-
-
 
 // --------- Инициализация ---------- //
 const apiProcessor = new ApiProcessor();

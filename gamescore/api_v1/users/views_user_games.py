@@ -3,9 +3,8 @@ from gamescore.core.models.users import UserGame
 from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
 from .crud import update_user_game, get_user_genres, get_user_game
-
 from gamescore.core.db import get_db
-from ..auth.dependencies import get_user_id
+from gamescore.api_v1.auth.dependencies import get_user_id
 from gamescore.core.entities.users import UserGameUpdate, UserGameRead
 
 router = APIRouter(tags=["User_Games"])

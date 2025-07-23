@@ -47,6 +47,10 @@ class UserGame(BaseModel, table=True):
     )
     user_game_genres: List["UserGameGenre"] = Relationship(
         back_populates="user_game",
-        sa_relationship_kwargs={"overlaps": "genres"}
+        sa_relationship_kwargs={
+            "cascade": "all, delete-orphan",
+            "passive_deletes": True,
+            "overlaps": "genres"
+        }
     )
 
