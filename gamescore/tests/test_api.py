@@ -1,6 +1,6 @@
 import pytest
 
-from utils import create_random_game, create_partial_game
+from .utils import create_random_game, create_partial_game
 
 
 @pytest.mark.asyncio

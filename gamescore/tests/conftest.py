@@ -1,19 +1,28 @@
 import pytest_asyncio
+import asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
+
 
 from gamescore.api_v1.users.dependencies import hash_password
 from gamescore.core.db import get_db
 from gamescore.core.models import User
 from gamescore.main import app
-from test_db_helper import db_helper_test
-from utils import create_random_game
+from .test_db_helper import db_helper_test
+from .utils import create_random_game
+
 
 
 async def override_get_db():
     async for session in db_helper_test.session_dependency():
         yield session
 
+
+@pytest_asyncio.fixture(scope="session")
+def event_loop():
+    loop = asyncio.new_event_loop()
+    yield loop
+    loop.close()
 
 # Делать запросы к СУЩЕСТВУЮЩЕМУ ПРИЛОЖЕНИЮ, поэтому на основе мы его не юзаем
 @pytest_asyncio.fixture

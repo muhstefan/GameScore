@@ -1,9 +1,11 @@
+import os
+
 from gamescore.core.config import Settings
 from gamescore.core.models import DataBaseHelper
 
 
 class SettingsTest(Settings):
-    db_url: str = "postgresql+asyncpg://postgres:test@localhost:5432/test_db"
+    db_url: str = os.getenv("test_db_url")
 
 
 test_settings = SettingsTest()
