@@ -1,7 +1,25 @@
-from gamescore.core.models.base import BaseModel
-from typing import Optional, List
-from sqlmodel import SQLModel, Field, Relationship
 from enum import Enum
+from typing import Optional, List
+
+from sqlalchemy import UniqueConstraint
+from sqlmodel import Field, Relationship
+
+from gamescore.core.models.base import BaseModel
+
+
+
+
+class Game(BaseModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    description: Optional[str] = None
+    rating: Optional[int] = None
+    image: Optional[str] = None
+
+    # обратная связь с UserGame т.е по ИГРЕ найти пользователей у которых она добавлена
+    user_games: list["UserGame"] = Relationship(back_populates="game")
+
+
 
 class User(BaseModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -12,6 +30,7 @@ class User(BaseModel, table=True):
 
     genres: List["Genre"] = Relationship(back_populates="user")
     user_games: List["UserGame"] = Relationship(back_populates="user")
+
 
 class UserGameGenre(BaseModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -27,6 +46,7 @@ class UserGameGenre(BaseModel, table=True):
 class GameStatus(str, Enum):
     wait = "wait"
     done = "done"
+
 
 class UserGame(BaseModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
@@ -52,5 +72,27 @@ class UserGame(BaseModel, table=True):
             "passive_deletes": True,
             "overlaps": "genres"
         }
+    )
+
+class Genre(BaseModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    name: str
+    user_id: int = Field(foreign_key="users.id")
+
+    user: "User" = Relationship(back_populates="genres")
+
+    user_game_genres: list["UserGameGenre"] = Relationship(
+        back_populates="genre",
+        sa_relationship_kwargs={"overlaps": "user_games"}
+    )
+
+    user_games: list["UserGame"] = Relationship(
+        back_populates="genres",
+        link_model=UserGameGenre,
+        sa_relationship_kwargs={"overlaps": "user_game_genres,user_game"}
+    )
+
+    __table_args__ = (
+        UniqueConstraint("user_id", "id", name="uq_user_genre_name"),
     )
 

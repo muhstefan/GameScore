@@ -1,17 +1,15 @@
+import os
+import sys
 from logging.config import fileConfig
 
+from alembic import context
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
-
-from alembic import context
-import sys
-import os
 
 sys.path.insert(0, os.getcwd())
 
 from gamescore.core.config import settings
 from gamescore.core.models.base import Base
-
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -28,6 +26,8 @@ config.set_main_option('sqlalchemy.url', sync_db_url)
 # target_metadata = mymodel.Base.metadata
 target_metadata = Base.metadata
 fileConfig(config.config_file_name)
+
+
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")

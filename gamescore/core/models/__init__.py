@@ -8,7 +8,5 @@ __all__ = (
     "UserGameGenre",
 )
 
-from .users import User,UserGame, UserGameGenre
 from .db_helper import db_helper, DataBaseHelper
-from .games import Game
-from .genres import Genre
+from .tables import User, UserGame, UserGameGenre,Genre ,Game

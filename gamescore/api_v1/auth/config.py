@@ -1,6 +1,5 @@
 import os
 
-
 Production = False  # Защита HTTPS
 
 SECRET_KEY = os.getenv("SECRET_KEY")

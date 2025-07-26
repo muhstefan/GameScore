@@ -3,20 +3,20 @@
 {% block title %}Мой профиль{% endblock %}
 
 {% block content %}
-  <div class="container">
+<div class="container">
     <h1>{{ user.username }}</h1>
 
     <div>
-      <label>Почта:</label>
-      <span id="email">{{ user.email }}</span>
+        <label>Почта:</label>
+        <span id="email">{{ user.email }}</span>
     </div>
 
     <div>
-      <a href="/change-password">Сменить пароль</a>
+        <a href="/change-password">Сменить пароль</a>
     </div>
 
-  <form action="/pages/logout/" method="post">
-    <button type="submit">Выйти</button>
-  </form>
-  </div>
+    <form action="/pages/logout/" method="post">
+        <button type="submit">Выйти</button>
+    </form>
+</div>
 {% endblock %}

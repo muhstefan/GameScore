@@ -1,5 +1,7 @@
 import asyncio
+
 import httpx
+
 
 async def fetch_games_from_rawg(params: dict, base_url: str, page: int) -> list[dict]:
     params_with_page = params.copy()
@@ -8,6 +10,7 @@ async def fetch_games_from_rawg(params: dict, base_url: str, page: int) -> list[
         response = await client.get(f"{base_url}/games", params=params_with_page)
         response.raise_for_status()
         return response.json().get("results", [])
+
 
 async def fetch_multiple_pages(params: dict, base_url: str, pages: int = 5) -> list[dict]:
     tasks = [

@@ -3,7 +3,7 @@
 {% block title %}Игры{% endblock %}
 
 {% block additional_content %}
- <button class="navigation-button">Мои жанры</button>
+<button class="navigation-button" data-action="manage_genres">Мои жанры</button>
 {% endblock %}
 
 {% block catalog_content %}
@@ -11,71 +11,89 @@
     <!-- Список игр появится тут через AJAX -->
 </div>
 
-    <!-- Модальное окно (Редактирование) -->
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <h2>Редактировать игру</h2>
+<!-- Модальное окно для управления жанрами -->
+<div class="modal" id="manageGenresModal" style="display:none;">
+    <div class="modal-content" style="max-width:400px; margin: 10% auto;">
+        <span id="closeManageGenres" style="float:right; cursor:pointer; font-size: 24px;">&times;</span>
+        <h2>Управление жанрами</h2>
 
-    <form id="gameForm">
-      <div class="form-group">
-        <label for="genres_select">Жанры</label>
-      <select id="genres_select" multiple required>
-      <!-- опции будут подгружаться -->
-      </select>
-      </div>
+        <form id="genreForm">
+            <input id="newGenreName" placeholder="Название жанра" required style="width: 70%; padding: 5px;"
+                   type="text">
+            <button style="padding: 5px 10px;" type="submit">Создать жанр</button>
+        </form>
 
-      <div class="form-group">
-        <label for="review_input">Ревью</label>
-        <textarea id="review_input" name="review" placeholder="Напишите ваш отзыв" rows="4"></textarea>
-      </div>
-
-      <div class="form-group">
-        <label for="rating_input">Оценка</label>
-        <input type="number" id="rating_input" name="rating" min="0" max="10" step="0.1" placeholder="0 - 10" required>
-      </div>
-
-      <div class="form-group">
-        <label>Статус</label>
-        <div>
-          <label><input type="radio" name="status" value="done" required> Пройдено</label>
-        <label><input type="radio" name="status" value="wait"> В ожидании</label>
-        </div>
-      </div>
-      <button data-action="remove_game" type="button">Убрать</button>
-      <button type="submit" id="save_game">Сохранить</button>
-    </form>
-  </div>
+        <h3>Ваши жанры</h3>
+        <ul id="userGenresList" style="list-style: none; padding-left: 0;"></ul>
+    </div>
 </div>
 
 
+<!-- Модальное окно (Редактирование) -->
+<div class="modal" id="myModal">
+    <div class="modal-content">
+        <h2>Редактировать игру</h2>
+
+        <form id="gameForm">
+            <div class="form-group">
+                <label for="genres_select">Жанры</label>
+                <select id="genres_select" multiple required>
+                    <!-- опции будут подгружаться -->
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="review_input">Ревью</label>
+                <textarea id="review_input" name="review" placeholder="Напишите ваш отзыв" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="rating_input">Оценка</label>
+                <input id="rating_input" max="10" min="0" name="rating" placeholder="0 - 10" required step="0.1"
+                       type="number">
+            </div>
+
+            <div class="form-group">
+                <label>Статус</label>
+                <div>
+                    <label><input name="status" required type="radio" value="done"> Пройдено</label>
+                    <label><input name="status" type="radio" value="wait"> В ожидании</label>
+                </div>
+            </div>
+            <button data-action="remove_game" type="button">Убрать</button>
+            <button id="save_game" type="submit">Сохранить</button>
+        </form>
+    </div>
+</div>
+
 
 <!-- Модальное окно для просмотра информации об игре -->
-<div id="gameInfoModal" class="modal">
-  <div class="modal-content">
-    <span class="close-info-modal" style="float:right; cursor:pointer;">&times;</span>
-    <h2 id="info_game_title">Информация об игре</h2>
-    <div class="info-group">
-      <strong>Жанры:</strong>
-      <span id="info_game_genres"></span>
+<div class="modal" id="gameInfoModal">
+    <div class="modal-content">
+        <span class="close-info-modal" style="float:right; cursor:pointer;">&times;</span>
+        <h2 id="info_game_title">Информация об игре</h2>
+        <div class="info-group">
+            <strong>Жанры:</strong>
+            <span id="info_game_genres"></span>
+        </div>
+        <div class="info-group">
+            <strong>Ревью:</strong>
+            <span id="info_game_review"></span>
+        </div>
+        <div class="info-group">
+            <strong>Оценка:</strong>
+            <span id="info_game_rating"></span>
+        </div>
+        <div class="info-group">
+            <strong>Статус:</strong>
+            <span id="info_game_status"></span>
+        </div>
     </div>
-    <div class="info-group">
-      <strong>Ревью:</strong>
-      <span id="info_game_review"></span>
-    </div>
-    <div class="info-group">
-      <strong>Оценка:</strong>
-      <span id="info_game_rating"></span>
-    </div>
-    <div class="info-group">
-      <strong>Статус:</strong>
-      <span id="info_game_status"></span>
-    </div>
-  </div>
 </div>
 
 
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', path='js/myGamesPage.js') }}" type="module" defer></script>
+<script defer src="{{ url_for('static', path='js/myGamesPage.js') }}" type="module"></script>
 {% endblock %}

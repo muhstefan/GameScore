@@ -6,11 +6,11 @@
 {% endblock %}
 
 {% block catalog_content %}
-    <div id="games_list_container">
-        <!-- Список игр появится тут через AJAX -->
-    </div>
+<div id="games_list_container">
+    <!-- Список игр появится тут через AJAX -->
+</div>
 {% block scripts %}
-<script src="{{ url_for('static', path='js/gamesPage.js') }}" type="module" defer></script>
+<script defer src="{{ url_for('static', path='js/gamesPage.js') }}" type="module"></script>
 {% endblock %}
 
 {% endblock %}

@@ -1,16 +1,18 @@
+import os
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from gamescore.api_v1.games.crud import create_games
 from gamescore.api_v1.rawg.client import fetch_multiple_pages
 from gamescore.api_v1.rawg.service import parse_games
 from gamescore.core.db import get_db
-from gamescore.api_v1.games.crud import create_games
-import os
 
 router = APIRouter(tags=["RAWG"])
 
 RAWG_API_KEY = os.getenv("RAWG_API_KEY")
 RAWG_BASE_URL = "https://api.rawg.io/api"
+
 
 @router.get("/games/")
 async def get_games(session: AsyncSession = Depends(get_db)):

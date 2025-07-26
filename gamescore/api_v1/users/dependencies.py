@@ -1,15 +1,17 @@
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.core.models import db_helper, User
-from gamescore.core.entities.users import UserCreate, UserUpdate, UserCreateDB
 from passlib.context import CryptContext
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from gamescore.core.entities.users import UserCreate, UserUpdate, UserCreateDB
+from gamescore.core.models import db_helper, User
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+
 def hash_password(password: str) -> str:
     return pwd_context.hash(password)
+
 
 async def prepare_user_create(user_in: UserCreate) -> UserCreateDB:
     hashed_password = hash_password(user_in.password)
@@ -19,10 +21,11 @@ async def prepare_user_create(user_in: UserCreate) -> UserCreateDB:
         password_hash=hashed_password
     )
 
+
 async def prepare_user_update(
-    user_id: int,
-    user_update: UserUpdate,
-    session: AsyncSession = Depends(db_helper.scoped_session_dependency)
+        user_id: int,
+        user_update: UserUpdate,
+        session: AsyncSession = Depends(db_helper.scoped_session_dependency)
 ) -> dict:
     update_data = user_update.model_dump(exclude_unset=True)
 

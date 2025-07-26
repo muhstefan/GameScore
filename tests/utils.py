@@ -10,6 +10,7 @@ async def create_random_game():
         "rating": fake.random_int(min=1, max=10)
     }
 
+
 async def create_partial_game():
     return {
         "description": fake.sentence(),

@@ -1,7 +1,7 @@
-from gamescore.api_v1.auth.security import decode_jwt_token, generate_and_set_tokens
-from gamescore.api_v1.auth.config import Production
 from fastapi import Request
 
+from gamescore.api_v1.auth.config import Production
+from gamescore.api_v1.auth.security import decode_jwt_token, generate_and_set_tokens
 
 
 async def auth_middleware(request: Request, call_next):

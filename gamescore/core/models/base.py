@@ -1,5 +1,6 @@
-from sqlmodel import SQLModel
 from sqlalchemy.ext.declarative import declared_attr
+from sqlmodel import SQLModel
+
 
 class BaseModel(SQLModel):
     @declared_attr

@@ -1,10 +1,10 @@
-from gamescore.core.config import BASE_DIR, Settings
+from gamescore.core.config import Settings
 from gamescore.core.models import DataBaseHelper
 
 
-
 class SettingsTest(Settings):
-    db_url: str = f"sqlite+aiosqlite:///{BASE_DIR}/test_db.sqlite3"
+    db_url: str = "postgresql+asyncpg://postgres:test@localhost:5432/test_db"
+
 
 test_settings = SettingsTest()
 

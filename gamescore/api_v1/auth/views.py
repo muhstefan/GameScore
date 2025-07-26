@@ -1,20 +1,19 @@
+from fastapi import Depends, HTTPException, status, Cookie, Response, APIRouter
 from fastapi.security import OAuth2PasswordRequestForm
-from fastapi import Depends, HTTPException, status, Cookie, Response,APIRouter
-from gamescore.api_v1.auth.security import verify_password, generate_and_set_tokens, decode_jwt_token
-from gamescore.api_v1.auth.config import Production
-from gamescore.core.db import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.api_v1.auth.crud import get_user_by_username
 
+from gamescore.api_v1.auth.config import Production
+from gamescore.api_v1.auth.crud import get_user_by_username
+from gamescore.api_v1.auth.security import verify_password, generate_and_set_tokens, decode_jwt_token
+from gamescore.core.db import get_db
 
 router = APIRouter(tags=["Auth"])
-
 
 
 @router.post("/login/")
 async def login(response: Response,
                 form_data: OAuth2PasswordRequestForm = Depends(),
-                session : AsyncSession = Depends(get_db)):
+                session: AsyncSession = Depends(get_db)):
     user = await get_user_by_username(session, form_data.username)
     if not user or not verify_password(form_data.password, user.password_hash):
         raise HTTPException(status_code=401, detail="Incorrect username or password")

@@ -3,28 +3,28 @@
 {% block title %}Вход{% endblock %}
 
 {% block content %}
-  <h2>Вход в аккаунт</h2>
+<h2>Вход в аккаунт</h2>
 
-  {% if error %}
-    <div style="color: red; margin-bottom: 1em;">{{ error }}</div>
-  {% endif %}
+{% if error %}
+<div style="color: red; margin-bottom: 1em;">{{ error }}</div>
+{% endif %}
 
-  <div class="container">
+<div class="container">
     <form id="login-form">
-      <div class="form-group">
-        <label for="username">Имя пользователя</label>
-        <input type="text" id="username" name="username" required />
-      </div>
-      <div class="form-group">
-        <label for="password">Пароль</label>
-        <input type="password" id="password" name="password" required />
-      </div>
-      <button type="submit">Войти</button>
+        <div class="form-group">
+            <label for="username">Имя пользователя</label>
+            <input id="username" name="username" required type="text"/>
+        </div>
+        <div class="form-group">
+            <label for="password">Пароль</label>
+            <input id="password" name="password" required type="password"/>
+        </div>
+        <button type="submit">Войти</button>
     </form>
     <div id="error-message" style="color: red; margin-top: 1em;"></div>
-  </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
-  <script src="{{ url_for('static', path='js/login.js') }}" type="module" defer>></script>
+<script defer src="{{ url_for('static', path='js/login.js') }}" type="module">></script>
 {% endblock %}

@@ -1,10 +1,10 @@
 <div class="container" id="game_list_container">
-     <h1>КАТАЛОГ ИГР</h1>
+    <h1>КАТАЛОГ ИГР</h1>
     <div class="games-grid">
         {% for game in games %}
         <div class="game-tile" id="container_{{ game.id }}">
             {% if game.image %}
-            <img src="{{ game.image }}" class="game-image" alt="{{ game.name }}">
+            <img alt="{{ game.name }}" class="game-image" src="{{ game.image }}">
             {% else %}
             <div class="no-image-placeholder"></div>
             {% endif %}
@@ -16,16 +16,16 @@
                 <div class="game-rating">{{ game.rating }}</div>
                 {% endif %}
 
-               <div class="game-actions">
-                  {% if game.in_library %}
+                <div class="game-actions">
+                    {% if game.in_library %}
                     <button data-action="remove_game" data-id="{{ game.id }}" type="button">
-                      <i class="remove-icon"></i> Убрать
+                        <i class="remove-icon"></i> Убрать
                     </button>
-                  {% else %}
+                    {% else %}
                     <button data-action="add_game" data-id="{{ game.id }}" type="button">
-                      Добавить
+                        Добавить
                     </button>
-                  {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -37,19 +37,19 @@
 
 <!-- Блок пагинации -->
 <div class="pagination">
-  {% if page > 1 %}
+    {% if page > 1 %}
     <button class="pagination-button" data-page="{{ page - 1 }}">← Предыдущая</button>
-  {% endif %}
-
-  {% for p in range(1, total_pages + 1) %}
-    {% if p == page %}
-      <span class="pagination-current">{{ p }}</span>
-    {% else %}
-      <button class="pagination-button" data-page="{{ p }}">{{ p }}</button>
     {% endif %}
-  {% endfor %}
 
-  {% if page < total_pages %}
+    {% for p in range(1, total_pages + 1) %}
+    {% if p == page %}
+    <span class="pagination-current">{{ p }}</span>
+    {% else %}
+    <button class="pagination-button" data-page="{{ p }}">{{ p }}</button>
+    {% endif %}
+    {% endfor %}
+
+    {% if page < total_pages %}
     <button class="pagination-button" data-page="{{ page + 1 }}">Следующая →</button>
-  {% endif %}
+    {% endif %}
 </div>

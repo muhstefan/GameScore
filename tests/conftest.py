@@ -1,11 +1,12 @@
-from gamescore.main import app
-from gamescore.core.models import User
-from gamescore.api_v1.users.dependencies import hash_password
-from gamescore.core.db import get_db
-from test_db_helper import db_helper_test
 import pytest_asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
+
+from gamescore.api_v1.users.dependencies import hash_password
+from gamescore.core.db import get_db
+from gamescore.core.models import User
+from gamescore.main import app
+from test_db_helper import db_helper_test
 from utils import create_random_game
 
 
@@ -23,14 +24,12 @@ async def async_client():
         yield client
     app.dependency_overrides.clear()
 
-@pytest_asyncio.fixture(scope="function", autouse=True) # scope Запускать каждый раз перед тестами, auto-use автоматически.
+
+@pytest_asyncio.fixture(scope="function", autouse=True)
 async def prepare_test_db_per_function():
     print("Очистка и подготовка базы перед тестом")
-    # 1. Удаляем все таблицы
     async with db_helper_test.engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
-    # 2. Создаем все таблицы заново
-    async with db_helper_test.engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     yield
 
@@ -66,10 +65,9 @@ async def create_admin():
 async def login_admin_session(async_client, create_admin):
     # Логинимся под созданным админом
     login_response = await async_client.post("/api/v1/auth/login/",
-        data={"username": create_admin.username, "password": "admin"},  # create_admin.username фикстура что то возвращает и мы к ней обращаемся
-        headers={"Content-Type": "application/x-www-form-urlencoded"}
-    )
+                                             data={"username": create_admin.username, "password": "admin"},
+                                             # create_admin.username фикстура что то возвращает и мы к ней обращаемся
+                                             headers={"Content-Type": "application/x-www-form-urlencoded"}
+                                             )
     assert login_response.status_code == 200
     return async_client
-    
-

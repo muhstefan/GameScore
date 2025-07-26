@@ -1,13 +1,14 @@
 from fastapi import Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
-from gamescore.core.db import get_db
+
 from gamescore.api_v1.users.crud import get_user
+from gamescore.core.db import get_db
 from gamescore.core.entities.users import UserPublic
 
 
 async def get_user_soft(
-    request: Request,
-    session: AsyncSession = Depends(get_db)
+        request: Request,
+        session: AsyncSession = Depends(get_db)
 ):
     user_id = getattr(request.state, "user_id", None)
     if user_id is None:
@@ -25,7 +26,7 @@ async def get_user_id(user=Depends(get_user_soft)) -> int | None:
 
 
 async def get_user_strict(
-    user: UserPublic = Depends(get_user_soft)  # Зависящая от get_user_soft
+        user: UserPublic = Depends(get_user_soft)  # Зависящая от get_user_soft
 ):
     if user is None:
         raise HTTPException(

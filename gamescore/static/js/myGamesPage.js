@@ -5,6 +5,14 @@ const form = document.getElementById('gameForm');
 const modal = document.getElementById('myModal');
 const infoModal = document.getElementById('gameInfoModal');
 const gamesListContainer = document.getElementById('games_list_container');
+const newGenreNameInput = document.getElementById('newGenreName');
+
+const manageGenresBtn = document.getElementById('manageGenresBtn');
+const manageGenresModal = document.getElementById('manageGenresModal');
+const genreForm = document.getElementById('genreForm');
+const userGenresList = document.getElementById('userGenresList');
+const navigationContainer = document.querySelector('.navigation-container');
+
 // Глобальная переменная текущего пользователя
 const UserId = window.currentUserId;
 
@@ -39,6 +47,30 @@ class ApiProcessor {
     if (!response.ok) throw new Error(`Failed to add game: ${response.status}`);
   }
 
+  async createGenre(genreName) {
+  const response = await fetch(`${BASE_URL}/api/v1/users/me/genres/${encodeURIComponent(genreName)}/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Ошибка создания жанра');
+  }
+  return await response.json();
+}
+
+async deleteGenre(genreId) {
+  const response = await fetch(`${BASE_URL}/api/v1/users/me/genres/${encodeURIComponent(genreId)}/`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.detail || 'Ошибка удаления жанра');
+  }
+}
+
+
   async removeGameFromUser(game_id) {
     const response = await fetch(`${BASE_URL}/api/v1/users/me/games/${game_id}/`, {
       method: 'DELETE',
@@ -48,7 +80,7 @@ class ApiProcessor {
   }
 
   async fetchGenreNames() {
-    const response = await fetch('/api/v1/users/me/genres/names/');
+    const response = await fetch('/api/v1/users/me/genres/');
     if (!response.ok) throw new Error('Ошибка получения жанров');
     return await response.json();
   }
@@ -86,6 +118,24 @@ class BusinessLogic {
     await this.apiProcessor.addGameToUser(game_id);
     await this.refreshGameList();
   }
+
+  async createGenre(genreName) {
+  return await this.apiProcessor.createGenre(genreName);
+}
+
+async deleteGenre(genreId) {
+  if (!confirm('Вы уверены, что хотите удалить этот жанр?')) {
+    return;
+  }
+
+  try {
+    await this.apiProcessor.deleteGenre(genreId);
+    // Обновляем список жанров сразу после удаления
+    await eventProcessor.loadAndRenderGenres();
+  } catch (error) {
+    alert('Ошибка удаления жанра: ' + (error.message || 'Неизвестная ошибка'));
+  }
+}
 
   async GameDetails(game_id) {
     return await this.apiProcessor.fetchUserGameDetails(game_id);
@@ -138,6 +188,38 @@ class BusinessLogic {
 class EventProcessor {
   constructor(businessLogic) {
     this.businessLogic = businessLogic;
+
+    navigationContainer.addEventListener('click', (event) => {
+    const btn = event.target.closest('button[data-action]');
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+
+     if (action === 'manage_genres') {
+      eventProcessor.openManageGenresModal();
+     event.preventDefault();
+     }
+});
+
+genreForm.addEventListener('submit', async (event) => {
+  event.preventDefault();
+
+  const genreName = newGenreNameInput.value.trim();
+
+  if (!genreName) {
+    alert('Название жанра не может быть пустым');
+    return;
+  }
+
+  try {
+    await this.businessLogic.createGenre(genreName);
+    newGenreNameInput.value = '';  // правильно очищаем поле
+    await this.loadAndRenderGenres(); // обновляем список жанров
+  } catch (error) {
+    alert('Ошибка создания жанра: ' + (error.message || error));
+  }
+});
+
 
     gamesListContainer.addEventListener('click', (event) => {
       const btn = event.target.closest('button');
@@ -205,6 +287,11 @@ class EventProcessor {
     }
   }
 
+openManageGenresModal() {
+  manageGenresModal.style.display = 'block';
+  this.loadAndRenderGenres();
+}
+
   async openEditModal(id) {
     try {
       const data = await this.businessLogic.GameDetails(id);
@@ -269,6 +356,43 @@ class EventProcessor {
     }
   }
 
+
+// Жанры рендерим с передачей id в обработчик
+async loadAndRenderGenres() {
+  if (!userGenresList) return;
+
+  userGenresList.innerHTML = 'Загрузка жанров...';
+
+  try {
+    const genres = await this.businessLogic.getGenreNames();
+
+    if (!genres || genres.length === 0) {
+      userGenresList.innerHTML = '<li>(Жанры отсутствуют)</li>';
+      return;
+    }
+
+    userGenresList.innerHTML = '';
+
+    genres.forEach(({ id, name }) => {
+      const li = document.createElement('li');
+      li.style.padding = '4px 0';
+      li.textContent = name;
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.textContent = 'Удалить';
+      deleteBtn.style.marginLeft = '10px';
+      deleteBtn.style.cursor = 'pointer';
+
+      deleteBtn.addEventListener('click', () => this.businessLogic.deleteGenre(id));
+
+      li.appendChild(deleteBtn);
+      userGenresList.appendChild(li);
+    });
+  } catch (error) {
+    userGenresList.innerHTML = `<li style="color:red;">Ошибка: ${error.message}</li>`;
+  }
+}
+
   closeModal(event) {
     if (event.target === modal) {
       form.reset();
@@ -281,6 +405,13 @@ class EventProcessor {
       infoModal.style.display = 'none';
       return;
     }
+
+      if (event.target === manageGenresModal) {  // новый блок
+    manageGenresModal.style.display = 'none';
+    if (this.genreForm) this.genreForm.reset();
+    this.userGenresList.innerHTML = '';
+    return;
+  }
   }
 }
 
