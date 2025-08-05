@@ -1,3 +1,4 @@
+import pytest
 import pytest_asyncio
 import asyncio
 from httpx import AsyncClient, ASGITransport
@@ -18,14 +19,10 @@ async def override_get_db():
         yield session
 
 
-@pytest_asyncio.fixture(scope="session")
-def event_loop():
-    loop = asyncio.new_event_loop()
-    yield loop
-    loop.close()
+
 
 # Делать запросы к СУЩЕСТВУЮЩЕМУ ПРИЛОЖЕНИЮ, поэтому на основе мы его не юзаем
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def async_client():
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
@@ -34,7 +31,7 @@ async def async_client():
     app.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture(scope="function", autouse=True)
+@pytest_asyncio.fixture(scope="module", autouse=True)
 async def prepare_test_db_per_function():
     print("Очистка и подготовка базы перед тестом")
     async with db_helper_test.engine.begin() as conn:
@@ -43,7 +40,7 @@ async def prepare_test_db_per_function():
     yield
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def create_some_games(login_admin_session):
     print("Заполняем играми")
     games = []
@@ -55,7 +52,7 @@ async def create_some_games(login_admin_session):
     return games
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def create_admin():
     async for session in db_helper_test.session_dependency():
         admin_user = User(
@@ -70,7 +67,7 @@ async def create_admin():
         yield admin_user
 
 
-@pytest_asyncio.fixture
+@pytest_asyncio.fixture(scope="module")
 async def login_admin_session(async_client, create_admin):
     # Логинимся под созданным админом
     login_response = await async_client.post("/api/v1/auth/login/",

@@ -5,8 +5,9 @@ description = "this my app"
 authors = ["muhstefan <muhstefang@gmail.com>"]
 readme = "README.md"
 
+
 [tool.poetry.dependencies]
-python = ">=3.13"
+python = ">=3.13,<4.0"
 fastapi = ">=0.115.12,<0.116.0"
 pydantic = { version = ">=2.11.4,<3.0.0", extras = ["email"] }
 uvicorn = { version = ">=0.34.2,<0.35.0", extras = ["standard"] }
@@ -24,8 +25,7 @@ python-jose = { extras = ["cryptography"], version = "^3.5.0" }
 python-multipart = "^0.0.20"
 bcrypt = "4.0.1"
 asyncpg = "^0.30.0"
-
-
+testcontainers = "^4.12.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
