@@ -1,29 +1,41 @@
-import pytest
+import os
+
 import pytest_asyncio
-import asyncio
 from httpx import AsyncClient, ASGITransport
 from sqlmodel import SQLModel
-
+from testcontainers.postgres import PostgresContainer
 
 from gamescore.api_v1.users.dependencies import hash_password
 from gamescore.core.db import get_db
-from gamescore.core.models import User
+from gamescore.core.models import User, DataBaseHelper
 from gamescore.main import app
-from .test_db_helper import db_helper_test
 from .utils import create_random_game
+from ..api_v1.auth import config
 
 
+@pytest_asyncio.fixture(loop_scope="module")
+def postgres_container():
+    with PostgresContainer("postgres:17-alpine") as postgres:
+        postgres.driver = "+asyncpg"  # Правильный драйвер asyncpg
+        yield postgres
 
-async def override_get_db():
-    async for session in db_helper_test.session_dependency():
-        yield session
+
+@pytest_asyncio.fixture(loop_scope="module")
+def test_db_helper(postgres_container):
+    return DataBaseHelper(url=postgres_container.get_connection_url(), echo=False)
 
 
+@pytest_asyncio.fixture(loop_scope="module")
+async def override_get_db(test_db_helper):
+    async def _override():
+        async for session in test_db_helper.session_dependency():
+            yield session
+
+    return _override
 
 
-# Делать запросы к СУЩЕСТВУЮЩЕМУ ПРИЛОЖЕНИЮ, поэтому на основе мы его не юзаем
-@pytest_asyncio.fixture(scope="module")
-async def async_client():
+@pytest_asyncio.fixture(loop_scope="module")
+async def async_client(override_get_db):
     app.dependency_overrides[get_db] = override_get_db
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as client:
@@ -31,16 +43,15 @@ async def async_client():
     app.dependency_overrides.clear()
 
 
-@pytest_asyncio.fixture(scope="module", autouse=True)
-async def prepare_test_db_per_function():
+@pytest_asyncio.fixture(autouse=True)
+async def prepare_test_db_per_function(test_db_helper):
     print("Очистка и подготовка базы перед тестом")
-    async with db_helper_test.engine.begin() as conn:
+    async with test_db_helper.engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.create_all)
     yield
 
-
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(loop_scope="module")
 async def create_some_games(login_admin_session):
     print("Заполняем играми")
     games = []
@@ -52,9 +63,9 @@ async def create_some_games(login_admin_session):
     return games
 
 
-@pytest_asyncio.fixture(scope="module")
-async def create_admin():
-    async for session in db_helper_test.session_dependency():
+@pytest_asyncio.fixture(loop_scope="module")
+async def create_admin(test_db_helper):
+    async for session in test_db_helper.session_dependency():
         admin_user = User(
             username="admin",
             email="admin@example.com",
@@ -67,7 +78,7 @@ async def create_admin():
         yield admin_user
 
 
-@pytest_asyncio.fixture(scope="module")
+@pytest_asyncio.fixture(loop_scope="module")
 async def login_admin_session(async_client, create_admin):
     # Логинимся под созданным админом
     login_response = await async_client.post("/api/v1/auth/login/",

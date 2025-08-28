@@ -26,12 +26,12 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(lifespan=lifespan)  # передаем функцию, но не вызываем ее, этим займется фреймворк.
+app = FastAPI(lifespan=lifespan)
 app.include_router(router_v1, prefix=settings.api_v1_prefix)
 app.include_router(pages_router)
 app.middleware("http")(auth_middleware)
 
-BASE_DIR = Path(__file__).parent  # папка microshop
+BASE_DIR = Path(__file__).parent
 STATIC_DIR = BASE_DIR / "static"
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
