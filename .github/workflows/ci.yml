@@ -1,17 +1,12 @@
 name: CI with Docker
-
-on: [ push, pull_request ]
-
+on: [push, pull_request]
 env:
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
   RAWG_API_KEY: ${{ secrets.RAWG_API_KEY }}
-
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
-
     steps:
-      # Скачать наш код в виртуальную машину
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -21,7 +16,7 @@ jobs:
       - name: Run tests inside Docker container
         run: |
           docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
             -e SECRET_KEY="$SECRET_KEY" \
             -e RAWG_API_KEY="$RAWG_API_KEY" \
             myapp:test pytest -v --asyncio-mode=auto
-
